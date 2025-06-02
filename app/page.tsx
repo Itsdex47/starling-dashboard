@@ -5,10 +5,10 @@ import Header from '@/components/Header'
 import PaymentStats from '@/components/PaymentStats'
 import PaymentsList from '@/components/PaymentsList'
 import QuickSend from '@/components/QuickSend'
-import { getPaymentHistory } from '@/lib/api'
+import { getPaymentHistory, Payment } from '@/lib/api'
 
 export default function Dashboard() {
-  const [payments, setPayments] = useState([])
+  const [payments, setPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -16,7 +16,7 @@ export default function Dashboard() {
     try {
       setLoading(true)
       const data = await getPaymentHistory()
-      setPayments(data.payments || [])
+      setPayments(data)
     } catch (err) {
       console.error('Failed to load payments:', err)
       setError('Failed to load payment data')
@@ -55,7 +55,7 @@ export default function Dashboard() {
 
         {/* Stats Overview */}
         <div className="mb-8">
-          <PaymentStats payments={payments} loading={loading} />
+          <PaymentStats payments={payments} />
         </div>
 
         {/* Main Content Grid */}
