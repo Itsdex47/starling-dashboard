@@ -114,7 +114,7 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
           <div className="space-y-4">
             {payments.slice(0, 10).map((payment) => (
               <div 
-                key={payment.paymentId} 
+                key={payment.id} 
                 className="border border-gray-200 rounded-lg p-4 hover:border-starling-300 transition-colors"
               >
                 <div className="flex items-center justify-between">
@@ -124,10 +124,10 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        To {payment.recipient?.name || 'Unknown'}
+                        To {payment.recipient || 'Unknown'}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {payment.paymentId.substring(0, 8)}... • {payment.recipient?.bank || 'Bank'}
+                        {payment.id.substring(0, 8)}... • {payment.description || 'Payment'}
                       </p>
                     </div>
                   </div>
@@ -135,10 +135,10 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
                   <div className="flex items-center space-x-3">
                     <div className="text-right">
                       <p className="text-sm font-medium text-gray-900">
-                        ${payment.amount?.input?.toLocaleString() || '0'}
+                        £{payment.amount?.toLocaleString() || '0'}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {payment.amount?.output?.toLocaleString() || '0'} MXN
+                        {payment.currency || 'GBP'}
                       </p>
                     </div>
                     

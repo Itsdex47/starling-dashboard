@@ -24,7 +24,7 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
   const refreshPaymentStatus = async () => {
     setLoading(true)
     try {
-      const details = await getPaymentStatus(payment.paymentId)
+      const details = await getPaymentStatus(payment.id)
       setPaymentDetails(details)
     } catch (error) {
       console.error('Failed to refresh payment status:', error)
@@ -34,19 +34,21 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
   }
 
   useEffect(() => {
-    if (isOpen) {
-      refreshPaymentStatus()
-      
-      // Auto-refresh every 10 seconds if payment is processing
-      const interval = setInterval(() => {
-        if (paymentDetails?.status === 'processing') {
-          refreshPaymentStatus()
+    const fetchDetails = async () => {
+      if (isOpen && payment?.id) {
+        setLoading(true)
+        try {
+          const details = await getPaymentStatus(payment.id)
+          setPaymentDetails(details)
+        } catch (error) {
+          console.error('Failed to fetch payment details:', error)
         }
-      }, 10000)
-      
-      return () => clearInterval(interval)
+        setLoading(false)
+      }
     }
-  }, [isOpen, payment.paymentId])
+
+    fetchDetails()
+  }, [isOpen, payment?.id])
 
   const getStepIcon = (status: string) => {
     switch (status) {

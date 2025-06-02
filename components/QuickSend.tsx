@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline'
-import { sendDemoPayment } from '@/lib/api'
+import { sendPayment } from '@/lib/api'
 
 interface QuickSendProps {
   onPaymentSent: () => void
@@ -22,18 +22,15 @@ export default function QuickSend({ onPaymentSent }: QuickSendProps) {
     setSuccess('')
 
     try {
-      const [firstName, ...lastNameParts] = recipientName.split(' ')
-      const lastName = lastNameParts.join(' ') || 'Rodriguez'
-
-      const response = await sendDemoPayment({
+      const response = await sendPayment({
         amount: parseFloat(amount),
-        recipientDetails: {
-          firstName,
-          lastName
-        }
+        currency: 'GBP',
+        type: 'sent',
+        recipient: recipientName,
+        description: 'Quick Send payment'
       })
 
-      setSuccess(`Payment sent! Tracking ID: ${response.data.paymentId.substring(0, 8)}...`)
+      setSuccess(`Payment sent! Tracking ID: ${response.id.substring(0, 8)}...`)
       setAmount('100')
       setRecipientName('Maria Rodriguez')
       onPaymentSent()
