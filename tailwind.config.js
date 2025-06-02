@@ -87,9 +87,10 @@ module.exports = {
         }
       },
       fontFamily: {
-        'display': ['Inter', 'system-ui', 'sans-serif'],
-        'body': ['Inter', 'system-ui', 'sans-serif'],
-        'mono': ['JetBrains Mono', 'Fira Code', 'monospace'],
+        'heading': ['var(--font-space-grotesk)', 'sans-serif'],
+        'display': ['var(--font-inter)', 'sans-serif'],
+        'body': ['var(--font-inter)', 'sans-serif'],
+        'mono': ['var(--font-jetbrains-mono)', 'monospace'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],
