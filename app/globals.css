@@ -37,16 +37,12 @@
   
   /* Glass morphism cards */
   .glass-card {
-    @apply bg-glass-dark backdrop-blur-md border border-dark-600/30 rounded-2xl shadow-glass;
-    background: linear-gradient(
-      135deg,
-      rgba(58, 58, 58, 0.1) 0%,
-      rgba(42, 42, 42, 0.8) 100%
-    );
+    @apply bg-dark-800/30 backdrop-blur-xl border border-dark-600/30 rounded-2xl;
   }
 
   .glass-card-hover {
-    @apply glass-card transition-all duration-300 hover:bg-glass-light hover:shadow-elevated hover:-translate-y-1;
+    @apply bg-dark-800/30 backdrop-blur-xl border border-dark-600/30 rounded-2xl;
+    @apply hover:bg-dark-700/40 hover:border-dark-500/40 transition-all duration-300;
   }
 
   /* Elevated cards */
@@ -65,24 +61,28 @@
 
   /* Buttons */
   .btn-primary {
-    @apply bg-gradient-to-r from-accent-green to-accent-green-light text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 hover:shadow-glow-green hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent-green/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+    @apply bg-gradient-to-r from-accent-green to-accent-green-light text-white font-semibold px-6 py-3 rounded-xl;
+    @apply hover:shadow-glow-green transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply bg-dark-700 text-dark-200 font-medium px-6 py-3 rounded-xl border border-dark-600 transition-all duration-200 hover:bg-dark-600 hover:text-dark-100 hover:border-dark-500 focus:outline-none focus:ring-2 focus:ring-dark-500/50;
+    @apply bg-dark-700/50 border border-dark-600/50 text-dark-200 font-semibold px-6 py-3 rounded-xl;
+    @apply hover:bg-dark-600/50 hover:border-dark-500/50 transition-all duration-200;
   }
 
   .btn-ghost {
-    @apply text-dark-300 font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:bg-dark-800 hover:text-dark-100 focus:outline-none focus:ring-2 focus:ring-dark-600/50;
+    @apply text-dark-300 hover:text-dark-100 hover:bg-dark-800/50 font-medium px-4 py-2 rounded-lg;
+    @apply transition-all duration-200;
   }
 
   .btn-icon {
-    @apply p-2 text-dark-400 hover:text-dark-200 transition-colors rounded-lg hover:bg-dark-800/50 focus:outline-none focus:ring-2 focus:ring-dark-600/50;
+    @apply text-dark-300 hover:text-dark-100 hover:bg-dark-800/50 p-2 rounded-lg;
+    @apply transition-all duration-200 flex items-center justify-center;
   }
 
   /* Status indicators */
   .status-success {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-status-success/20 text-status-success border border-status-success/30;
+    @apply bg-status-success/20 text-status-success border border-status-success/30;
   }
 
   .status-warning {
@@ -90,28 +90,32 @@
   }
 
   .status-error {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-status-error/20 text-status-error border border-status-error/30;
+    @apply bg-status-error/20 text-status-error border border-status-error/30;
   }
 
   .status-pending {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-status-pending/20 text-status-pending border border-status-pending/30;
+    @apply bg-status-pending/20 text-status-pending border border-status-pending/30;
   }
 
   .status-info {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-status-info/20 text-status-info border border-status-info/30;
+    @apply bg-accent-blue/20 text-accent-blue border border-accent-blue/30;
   }
 
   /* Form elements */
   .form-input {
-    @apply bg-dark-800 border border-dark-600 text-dark-100 placeholder-dark-400 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-green/50 focus:border-accent-green transition-colors;
+    @apply bg-dark-800/30 border border-dark-600/50 text-dark-100 rounded-xl px-4 py-3;
+    @apply focus:ring-2 focus:ring-accent-green/50 focus:border-accent-green/50;
+    @apply placeholder-dark-400 transition-all duration-200;
   }
 
   .form-select {
-    @apply bg-dark-800 border border-dark-600 text-dark-100 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-green/50 focus:border-accent-green transition-colors;
+    @apply bg-dark-800/30 border border-dark-600/50 text-dark-100 rounded-xl px-4 py-3;
+    @apply focus:ring-2 focus:ring-accent-green/50 focus:border-accent-green/50;
+    @apply transition-all duration-200 appearance-none;
   }
 
   .form-label {
-    @apply block text-sm font-medium text-dark-300 mb-2;
+    @apply block text-sm font-medium text-dark-200 mb-2;
   }
 
   /* Data visualization */
@@ -129,49 +133,70 @@
 
   /* Navigation */
   .nav-link {
-    @apply text-dark-300 hover:text-dark-100 px-4 py-2 text-sm font-medium transition-colors rounded-lg hover:bg-dark-800/50;
+    @apply text-dark-300 hover:text-dark-100 hover:bg-dark-800/50 px-4 py-2 rounded-lg;
+    @apply transition-all duration-200 font-medium text-sm;
   }
 
   .nav-link-active {
-    @apply text-accent-green bg-accent-green/10 border border-accent-green/20 px-4 py-2 text-sm font-medium rounded-lg;
+    @apply text-accent-green bg-accent-green/10 border border-accent-green/20 px-4 py-2 rounded-lg;
+    @apply font-medium text-sm;
   }
 
   /* Utilities */
-  .text-gradient {
-    @apply bg-gradient-to-r from-accent-green to-accent-blue bg-clip-text text-transparent;
+  .text-gradient-green {
+    @apply bg-gradient-to-r from-accent-green to-accent-green-light bg-clip-text text-transparent;
   }
 
-  .text-gradient-gold {
-    @apply bg-gradient-to-r from-accent-gold to-accent-gold-light bg-clip-text text-transparent;
+  .text-gradient-blue {
+    @apply bg-gradient-to-r from-accent-blue to-accent-blue-light bg-clip-text text-transparent;
   }
 
   .text-gradient-purple {
     @apply bg-gradient-to-r from-accent-purple to-accent-purple-light bg-clip-text text-transparent;
   }
 
-  /* Loading states */
-  .shimmer {
-    @apply animate-pulse bg-gradient-to-r from-dark-700 via-dark-600 to-dark-700;
-    background-size: 200% 100%;
-    animation: shimmer 1.5s ease-in-out infinite;
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-accent-gold to-accent-gold-light bg-clip-text text-transparent;
   }
 
-  /* Floating elements */
-  .floating {
-    @apply animate-float;
+  /* Loading states */
+  .shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
   }
 
   /* Glow effects */
   .glow-green {
-    @apply shadow-glow-green;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
   }
 
   .glow-purple {
-    @apply shadow-glow-purple;
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
   }
 
   .glow-gold {
-    @apply shadow-glow-gold;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  }
+
+  .shadow-glow-green {
+    box-shadow: 0 10px 25px rgba(34, 197, 94, 0.3);
+  }
+
+  .shadow-glow-blue {
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+  }
+
+  .shadow-glow-purple {
+    box-shadow: 0 10px 25px rgba(147, 51, 234, 0.3);
+  }
+
+  .shadow-glow-gold {
+    box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
   }
 
   /* Table styles */
@@ -199,32 +224,40 @@
   .modal-content {
     @apply glass-card max-w-lg w-full mx-4 p-6;
   }
+
+  /* Background patterns */
+  .bg-organic-pattern {
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(147, 51, 234, 0.05) 0%, transparent 50%);
+  }
+
+  .bg-topographic {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3Ccircle cx='30' cy='30' r='8'/%3E%3Ccircle cx='30' cy='30' r='16'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
 }
 
-/* Custom keyframes */
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-/* Scrollbar styling */
+/* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-dark-800;
+  background: rgba(15, 23, 42, 0.1);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-dark-600 rounded-full;
+  background: rgba(100, 116, 139, 0.3);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-dark-500;
+  background: rgba(100, 116, 139, 0.5);
 }
 

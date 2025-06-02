@@ -69,19 +69,19 @@ export default function PaymentsPage() {
         {/* Tab Content */}
         <div className="space-y-8">
           {activeTab === 'send' && (
-            <div className="animate-float">
+            <div>
               <SendPaymentForm />
             </div>
           )}
 
           {activeTab === 'receive' && (
-            <div className="animate-float">
+            <div>
               <ReceivePaymentForm />
             </div>
           )}
 
           {activeTab === 'history' && (
-            <div className="animate-float">
+            <div>
               <PaymentHistory />
             </div>
           )}

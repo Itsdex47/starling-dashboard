@@ -28,9 +28,8 @@ export default function Dashboard() {
   useEffect(() => {
     loadPayments()
     
-    // Refresh every 30 seconds
-    const interval = setInterval(loadPayments, 30000)
-    return () => clearInterval(interval)
+    // Removed auto-refresh to prevent constant reloading
+    // Users can manually refresh using the refresh button in PaymentsList
   }, [])
 
   const onPaymentSent = () => {

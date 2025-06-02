@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { ArrowPathIcon, FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { useState, Fragment } from 'react'
+import { ArrowPathIcon, FunnelIcon, MagnifyingGlassIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
+import { Menu, Transition } from '@headlessui/react'
 import PaymentDetailModal from './PaymentDetailModal'
 
 interface Payment {
@@ -28,6 +29,19 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [typeFilter, setTypeFilter] = useState<string>('all')
+
+  const statusOptions = [
+    { value: 'all', label: 'All Status', icon: null },
+    { value: 'completed', label: 'Completed', icon: 'bg-status-success' },
+    { value: 'pending', label: 'Pending', icon: 'bg-status-pending' },
+    { value: 'failed', label: 'Failed', icon: 'bg-status-error' }
+  ]
+
+  const typeOptions = [
+    { value: 'all', label: 'All Types', icon: null },
+    { value: 'sent', label: 'Sent', icon: 'text-status-error' },
+    { value: 'received', label: 'Received', icon: 'text-status-success' }
+  ]
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -149,7 +163,7 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
       <div className="glass-card">
         {/* Header */}
         <div className="px-6 py-4 border-b border-dark-600/30">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold text-dark-100">Recent Transactions</h2>
               <p className="text-sm text-dark-400">
@@ -165,8 +179,8 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
             </button>
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          {/* Modern Filters */}
+          <div className="flex flex-col sm:flex-row gap-3">
             {/* Search */}
             <div className="relative flex-1">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-dark-400" />
@@ -179,30 +193,108 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
               />
             </div>
 
-            {/* Status Filter */}
-            <div className="flex items-center space-x-2">
-              <FunnelIcon className="h-4 w-4 text-dark-400" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="form-select"
-              >
-                <option value="all">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="pending">Pending</option>
-                <option value="failed">Failed</option>
-              </select>
+            {/* Status Filter Dropdown */}
+            <Menu as="div" className="relative">
+              {({ open }) => (
+                <>
+                  <Menu.Button className="flex items-center px-4 py-2 text-dark-300 hover:text-dark-100 rounded-lg hover:bg-dark-800/50 transition-colors focus:outline-none focus:ring-2 focus:ring-dark-600/50 border border-dark-600/30 bg-dark-800/30 backdrop-blur-sm whitespace-nowrap">
+                    <FunnelIcon className="h-4 w-4 mr-2" />
+                    <span className="text-sm">
+                      {statusOptions.find(opt => opt.value === statusFilter)?.label}
+                    </span>
+                    <ChevronDownIcon className={`ml-2 h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                  </Menu.Button>
 
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="form-select"
-              >
-                <option value="all">All Types</option>
-                <option value="sent">Sent</option>
-                <option value="received">Received</option>
-              </select>
-            </div>
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right glass-card border border-dark-600/30 focus:outline-none">
+                      <div className="py-2">
+                        {statusOptions.map((option) => (
+                          <Menu.Item key={option.value}>
+                            {({ active }) => (
+                              <button
+                                onClick={() => setStatusFilter(option.value)}
+                                className={`${
+                                  active ? 'bg-dark-700/50 text-dark-100' : 'text-dark-300'
+                                } group flex items-center w-full px-4 py-2 text-sm transition-colors ${
+                                  statusFilter === option.value ? 'text-accent-green' : ''
+                                }`}
+                              >
+                                {option.icon && (
+                                  <div className={`w-3 h-3 rounded-full mr-3 ${option.icon}`}></div>
+                                )}
+                                {option.label}
+                              </button>
+                            )}
+                          </Menu.Item>
+                        ))}
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </>
+              )}
+            </Menu>
+
+            {/* Type Filter Dropdown */}
+            <Menu as="div" className="relative">
+              {({ open }) => (
+                <>
+                  <Menu.Button className="flex items-center px-4 py-2 text-dark-300 hover:text-dark-100 rounded-lg hover:bg-dark-800/50 transition-colors focus:outline-none focus:ring-2 focus:ring-dark-600/50 border border-dark-600/30 bg-dark-800/30 backdrop-blur-sm whitespace-nowrap">
+                    <span className="text-sm">
+                      {typeOptions.find(opt => opt.value === typeFilter)?.label}
+                    </span>
+                    <ChevronDownIcon className={`ml-2 h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                  </Menu.Button>
+
+                  <Transition
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right glass-card border border-dark-600/30 focus:outline-none">
+                      <div className="py-2">
+                        {typeOptions.map((option) => (
+                          <Menu.Item key={option.value}>
+                            {({ active }) => (
+                              <button
+                                onClick={() => setTypeFilter(option.value)}
+                                className={`${
+                                  active ? 'bg-dark-700/50 text-dark-100' : 'text-dark-300'
+                                } group flex items-center w-full px-4 py-2 text-sm transition-colors ${
+                                  typeFilter === option.value ? 'text-accent-green' : ''
+                                }`}
+                              >
+                                {option.value !== 'all' && (
+                                  <svg className={`w-4 h-4 mr-3 ${option.icon}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {option.value === 'sent' ? (
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                                    ) : (
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                                    )}
+                                  </svg>
+                                )}
+                                {option.label}
+                              </button>
+                            )}
+                          </Menu.Item>
+                        ))}
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </>
+              )}
+            </Menu>
           </div>
         </div>
 
