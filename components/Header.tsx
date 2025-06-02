@@ -29,7 +29,24 @@ export default function Header() {
                 </span>
               </div>
             </div>
-            <div className="hidden md:block ml-6">
+            
+            {/* Navigation */}
+            <nav className="hidden md:flex ml-8 space-x-8">
+              <a 
+                href="/" 
+                className="text-gray-900 hover:text-starling-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Dashboard
+              </a>
+              <a 
+                href="/payments" 
+                className="text-gray-500 hover:text-starling-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                Payments
+              </a>
+            </nav>
+            
+            <div className="hidden lg:block ml-6">
               <span className="text-sm text-gray-500">
                 Cross-Border Payment Infrastructure
               </span>
