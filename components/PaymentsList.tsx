@@ -89,10 +89,10 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
           <h2 className="text-lg font-semibold text-gray-900">Recent Payments</h2>
           <button 
             onClick={onRefresh}
-            className="btn-secondary hover:bg-gray-100 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
+            title="Refresh payments"
           >
-            <ArrowPathIcon className="h-4 w-4 mr-2" />
-            Refresh
+            <ArrowPathIcon className="h-5 w-5" />
           </button>
         </div>
 
