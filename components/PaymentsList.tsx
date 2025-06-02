@@ -137,7 +137,7 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
   }
 
   if (error) {
-    return (
+  return (
       <div className="glass-card">
         <div className="p-6 text-center">
           <div className="w-12 h-12 bg-status-error/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -147,7 +147,7 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
           </div>
           <h3 className="text-lg font-semibold text-dark-100 mb-2">Failed to load payments</h3>
           <p className="text-dark-400 mb-4">{error}</p>
-          <button
+          <button 
             onClick={onRefresh}
             className="btn-primary"
           >
@@ -162,34 +162,34 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
     <>
       <div className="glass-card">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-dark-600/30">
+        <div className="px-6 py-6 border-b border-dark-600/30">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-bold text-dark-100">Recent Transactions</h2>
-              <p className="text-sm text-dark-400">
-                {filteredPayments.length} of {payments.length} transactions
+              <h2 className="text-2xl font-bold text-dark-100 text-display-xl">Recent Transactions</h2>
+              <p className="text-sm text-dark-400 mt-1">
+                <span className="number-sm font-medium text-accent-green">{filteredPayments.length}</span> of <span className="number-sm">{payments.length}</span> transactions
               </p>
             </div>
             <button
               onClick={onRefresh}
-              className="btn-icon"
+              className="btn-icon hover:bg-accent-green/10 hover:text-accent-green"
               disabled={loading}
             >
               <ArrowPathIcon className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
-          {/* Modern Filters */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          {/* Enhanced Filters */}
+          <div className="flex flex-col sm:flex-row gap-4">
             {/* Search */}
             <div className="relative flex-1">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-dark-400" />
+              <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-dark-400" />
               <input
                 type="text"
-                placeholder="Search transactions..."
+                placeholder="Search by recipient, transaction ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-input pl-10 w-full"
+                className="form-input pl-12 pr-4 w-full h-12 text-sm"
               />
             </div>
 
@@ -197,11 +197,13 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
             <Menu as="div" className="relative">
               {({ open }) => (
                 <>
-                  <Menu.Button className="flex items-center px-4 py-2 text-dark-300 hover:text-dark-100 rounded-lg hover:bg-dark-800/50 transition-colors focus:outline-none focus:ring-2 focus:ring-dark-600/50 border border-dark-600/30 bg-dark-800/30 backdrop-blur-sm whitespace-nowrap">
-                    <FunnelIcon className="h-4 w-4 mr-2" />
-                    <span className="text-sm">
-                      {statusOptions.find(opt => opt.value === statusFilter)?.label}
-                    </span>
+                  <Menu.Button className="flex items-center justify-between px-4 py-3 text-dark-300 hover:text-dark-100 rounded-xl hover:bg-dark-700/30 transition-all focus:outline-none focus:ring-2 focus:ring-accent-green/50 border border-dark-600/30 bg-dark-800/30 backdrop-blur-sm whitespace-nowrap min-w-[160px] h-12">
+                    <div className="flex items-center">
+                      <FunnelIcon className="h-4 w-4 mr-2" />
+                      <span className="text-sm font-medium">
+                        {statusOptions.find(opt => opt.value === statusFilter)?.label}
+                      </span>
+                    </div>
                     <ChevronDownIcon className={`ml-2 h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
                   </Menu.Button>
 
@@ -246,8 +248,8 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
             <Menu as="div" className="relative">
               {({ open }) => (
                 <>
-                  <Menu.Button className="flex items-center px-4 py-2 text-dark-300 hover:text-dark-100 rounded-lg hover:bg-dark-800/50 transition-colors focus:outline-none focus:ring-2 focus:ring-dark-600/50 border border-dark-600/30 bg-dark-800/30 backdrop-blur-sm whitespace-nowrap">
-                    <span className="text-sm">
+                  <Menu.Button className="flex items-center justify-between px-4 py-3 text-dark-300 hover:text-dark-100 rounded-xl hover:bg-dark-700/30 transition-all focus:outline-none focus:ring-2 focus:ring-accent-green/50 border border-dark-600/30 bg-dark-800/30 backdrop-blur-sm whitespace-nowrap min-w-[140px] h-12">
+                    <span className="text-sm font-medium">
                       {typeOptions.find(opt => opt.value === typeFilter)?.label}
                     </span>
                     <ChevronDownIcon className={`ml-2 h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
@@ -301,76 +303,83 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
         {/* Transaction List */}
         <div className="divide-y divide-dark-600/30">
           {filteredPayments.length === 0 ? (
-            <div className="p-8 text-center">
-              <div className="w-12 h-12 bg-dark-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <div className="p-12 text-center">
+              <div className="w-16 h-16 bg-dark-700/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-dark-100 mb-2">No transactions found</h3>
-              <p className="text-dark-400">
+              <h3 className="text-xl font-semibold text-dark-100 mb-3 text-display-lg">No transactions found</h3>
+              <p className="text-dark-400 text-base">
                 {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' 
-                  ? 'Try adjusting your filters' 
-                  : 'Your transactions will appear here'}
-              </p>
-            </div>
-          ) : (
+                  ? 'Try adjusting your search criteria or filters' 
+                  : 'Your transactions will appear here once you start sending or receiving payments'}
+            </p>
+          </div>
+        ) : (
             filteredPayments.map((payment) => (
-              <div
+              <div 
                 key={payment.id}
                 onClick={() => setSelectedPayment(payment)}
-                className="px-6 py-4 hover:bg-dark-800/30 cursor-pointer transition-colors group"
+                className="px-6 py-5 hover:bg-dark-700/20 cursor-pointer transition-all duration-200 group hover:border-l-4 hover:border-l-accent-green"
               >
-                <div className="flex items-center space-x-4">
-                  {/* Type Icon */}
-                  <div className="flex-shrink-0">
-                    {getTypeIcon(payment.type)}
-                  </div>
-
-                  {/* Transaction Details */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-dark-100 truncate group-hover:text-accent-green transition-colors">
-                        {payment.type === 'sent' ? `To ${payment.recipient}` : `From ${payment.recipient}`}
-                      </p>
-                      <div className="text-right">
-                        <p className={`text-sm font-bold ${
-                          payment.type === 'sent' ? 'text-status-error' : 'text-status-success'
-                        }`}>
-                          {payment.type === 'sent' ? '-' : '+'}£{payment.amount.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-dark-400">{payment.currency}</p>
-                      </div>
+                <div className="flex items-center justify-between">
+                  {/* Left: Type Icon + Details */}
+                  <div className="flex items-center space-x-4 flex-1 min-w-0">
+                    <div className="flex-shrink-0">
+                      {getTypeIcon(payment.type)}
                     </div>
                     
-                    <div className="mt-1 flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        {getStatusIcon(payment.status)}
-                        <span className="text-xs text-dark-400">
-                          {new Date(payment.timestamp).toLocaleDateString()} at{' '}
-                          {new Date(payment.timestamp).toLocaleTimeString([], { 
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <p className="text-base font-semibold text-dark-100 truncate group-hover:text-accent-green transition-colors text-display-base">
+                          {payment.type === 'sent' ? `To ${payment.recipient}` : `From ${payment.recipient}`}
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          {getStatusIcon(payment.status)}
+                          <span className={getStatusBadge(payment.status)}>
+                            {payment.status}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-4 text-sm text-dark-400">
+                        <span>
+                          {new Date(payment.timestamp).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                          })} at {new Date(payment.timestamp).toLocaleTimeString('en-GB', { 
                             hour: '2-digit', 
                             minute: '2-digit' 
                           })}
                         </span>
+                        {payment.reference && (
+                          <>
+                            <span>•</span>
+                            <span className="font-mono text-xs">Ref: {payment.reference}</span>
+                          </>
+                        )}
                       </div>
-                      <span className={getStatusBadge(payment.status)}>
-                        {payment.status}
-                      </span>
                     </div>
-
-                    {payment.reference && (
-                      <p className="mt-1 text-xs text-dark-500 font-mono">
-                        Ref: {payment.reference}
-                      </p>
-                    )}
                   </div>
-
-                  {/* Chevron */}
-                  <div className="flex-shrink-0">
-                    <svg className="w-5 h-5 text-dark-500 group-hover:text-dark-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                  
+                  {/* Right: Amount + Arrow */}
+                  <div className="flex items-center space-x-4">
+                    <div className="text-right">
+                      <p className={`number-lg font-bold ${
+                        payment.type === 'sent' ? 'text-status-error' : 'text-status-success'
+                      }`}>
+                        {payment.type === 'sent' ? '-' : '+'}£{payment.amount.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-dark-400 font-medium">{payment.currency}</p>
+                    </div>
+                    
+                    <div className="flex-shrink-0">
+                      <svg className="w-5 h-5 text-dark-500 group-hover:text-accent-green transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -378,20 +387,26 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
           )}
         </div>
 
-        {/* Pagination placeholder */}
+        {/* Enhanced Pagination Footer */}
         {filteredPayments.length > 0 && (
-          <div className="px-6 py-4 border-t border-dark-600/30 bg-dark-800/20">
+          <div className="px-6 py-4 border-t border-dark-600/30 bg-dark-800/10">
             <div className="flex items-center justify-between">
               <p className="text-sm text-dark-400">
-                Showing {filteredPayments.length} transactions
+                Showing <span className="number-sm font-medium text-dark-200">{filteredPayments.length}</span> transaction{filteredPayments.length !== 1 ? 's' : ''}
               </p>
-              <div className="flex items-center space-x-2">
-                <button className="btn-ghost text-xs px-3 py-1" disabled>
+              <div className="flex items-center space-x-3">
+                <button className="btn-ghost text-xs px-3 py-1.5 rounded-lg" disabled>
+                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
                   Previous
                 </button>
-                <span className="text-xs text-dark-400">Page 1 of 1</span>
-                <button className="btn-ghost text-xs px-3 py-1" disabled>
+                <span className="text-xs text-dark-400 px-2">Page <span className="number-xs">1</span> of <span className="number-xs">1</span></span>
+                <button className="btn-ghost text-xs px-3 py-1.5 rounded-lg" disabled>
                   Next
+                  <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -401,7 +416,7 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
 
       {/* Payment Detail Modal */}
       {selectedPayment && (
-        <PaymentDetailModal
+        <PaymentDetailModal 
           payment={selectedPayment}
           isOpen={!!selectedPayment}
           onClose={() => setSelectedPayment(null)}

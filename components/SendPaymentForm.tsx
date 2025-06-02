@@ -247,7 +247,7 @@ export default function SendPaymentForm() {
                         onChange={(e) => handleInputChange('amount', e.target.value)}
                         className={`block w-full pl-10 pr-10 py-3 border-2 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 hover:border-gray-300 ${
                           errors.amount ? 'border-red-300 bg-red-50/50' : 'border-gray-200 bg-gray-50/30'
-                        } text-lg font-medium text-gray-900 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                        } text-lg font-medium text-gray-900 number-display [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
                         placeholder="0.00"
                         min="1"
                         step="0.01"
@@ -486,7 +486,7 @@ export default function SendPaymentForm() {
                         onChange={(e) => handleInputChange('recipientBankAccount', e.target.value)}
                         className={`block w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 hover:border-gray-300 ${
                           errors.recipientBankAccount ? 'border-red-300 bg-red-50/50' : 'border-gray-200 bg-gray-50/30'
-                        } text-lg font-mono text-gray-900`}
+                        } text-lg number-display text-gray-900`}
                         placeholder="1234567890"
                       />
                       {errors.recipientBankAccount && <p className="text-red-600 text-sm mt-2 font-medium">{errors.recipientBankAccount}</p>}
@@ -502,7 +502,7 @@ export default function SendPaymentForm() {
                         onChange={(e) => handleInputChange('recipientBankCode', e.target.value)}
                         className={`block w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 hover:border-gray-300 ${
                           errors.recipientBankCode ? 'border-red-300 bg-red-50/50' : 'border-gray-200 bg-gray-50/30'
-                        } text-lg font-mono text-gray-900`}
+                        } text-lg number-display text-gray-900`}
                         placeholder="BBVAMXMM"
                       />
                       {errors.recipientBankCode && <p className="text-red-600 text-sm mt-2 font-medium">{errors.recipientBankCode}</p>}
@@ -619,7 +619,7 @@ export default function SendPaymentForm() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-base font-bold text-blue-900">
+                        <div className="number-base font-bold text-blue-900">
                           1 {formData.currency} = {exchangeRate.rate.toFixed(4)} {formData.recipientCountry === 'MX' ? 'MXN' : 'USD'}
                         </div>
                         <div className="text-xs text-blue-700">Mid-market rate • No markup</div>
@@ -629,7 +629,7 @@ export default function SendPaymentForm() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
                         <div className="text-xs font-medium text-blue-700 mb-1">You Send</div>
-                        <div className="text-xl font-bold text-blue-900 mb-1">
+                        <div className="number-xl font-bold text-blue-900 mb-1">
                           {selectedCurrency?.symbol}{exchangeRate.fromAmount.toFixed(2)}
                         </div>
                         <div className="text-xs text-blue-600">{formData.currency}</div>
@@ -637,7 +637,7 @@ export default function SendPaymentForm() {
                       
                       <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
                         <div className="text-xs font-medium text-blue-700 mb-1">Transfer Fee</div>
-                        <div className="text-xl font-bold text-blue-900 mb-1">
+                        <div className="number-xl font-bold text-blue-900 mb-1">
                           {selectedCurrency?.symbol}{exchangeRate.fees.total.toFixed(2)}
                         </div>
                         <div className="text-xs text-blue-600">2.5% • Transparent pricing</div>
@@ -645,7 +645,7 @@ export default function SendPaymentForm() {
                       
                       <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
                         <div className="text-xs font-medium text-blue-700 mb-1">Total Cost</div>
-                        <div className="text-xl font-bold text-red-700 mb-1">
+                        <div className="number-xl font-bold text-red-700 mb-1">
                           {selectedCurrency?.symbol}{(exchangeRate.fromAmount + exchangeRate.fees.total).toFixed(2)}
                         </div>
                         <div className="text-xs text-blue-600">Debited from account</div>
@@ -653,7 +653,7 @@ export default function SendPaymentForm() {
                       
                       <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-xl p-4 text-center border-2 border-green-200">
                         <div className="text-xs font-medium text-green-700 mb-1">Recipient Gets</div>
-                        <div className="text-xl font-bold text-green-800 mb-1">
+                        <div className="number-xl font-bold text-green-800 mb-1">
                           {formData.recipientCountry === 'MX' ? '$' : '$'}{exchangeRate.toAmount.toFixed(2)}
                         </div>
                         <div className="text-xs text-green-600">{formData.recipientCountry === 'MX' ? 'MXN' : 'USD'} • Guaranteed</div>
@@ -662,11 +662,11 @@ export default function SendPaymentForm() {
                     
                     <div className="mt-4 grid grid-cols-2 gap-4 text-center">
                       <div className="bg-white/60 rounded-lg p-3">
-                        <div className="text-base font-bold text-blue-900">2-5 minutes</div>
+                        <div className="number-base font-bold text-blue-900">2-5 minutes</div>
                         <div className="text-xs text-blue-700">Typical delivery time</div>
                       </div>
                       <div className="bg-white/60 rounded-lg p-3">
-                        <div className="text-base font-bold text-blue-900">50% cheaper</div>
+                        <div className="number-base font-bold text-blue-900">50% cheaper</div>
                         <div className="text-xs text-blue-700">vs traditional banks</div>
                       </div>
                     </div>

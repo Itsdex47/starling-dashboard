@@ -2,8 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap');
 
 /* Base styles */
 @layer base {
@@ -21,7 +20,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-semibold text-dark-50;
+    @apply font-heading font-semibold text-dark-50;
   }
 
   h1 { @apply text-4xl lg:text-5xl; }
@@ -62,9 +61,9 @@
   /* Buttons */
   .btn-primary {
     @apply bg-gradient-to-r from-accent-green to-accent-green-light text-white font-semibold px-6 py-3 rounded-xl;
-    @apply hover:shadow-glow-green transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply hover:shadow-glow-green transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-display;
   }
-
+  
   .btn-secondary {
     @apply bg-dark-700/50 border border-dark-600/50 text-dark-200 font-semibold px-6 py-3 rounded-xl;
     @apply hover:bg-dark-600/50 hover:border-dark-500/50 transition-all duration-200;
@@ -134,12 +133,12 @@
   /* Navigation */
   .nav-link {
     @apply text-dark-300 hover:text-dark-100 hover:bg-dark-800/50 px-4 py-2 rounded-lg;
-    @apply transition-all duration-200 font-medium text-sm;
+    @apply transition-all duration-200 font-medium text-sm text-display;
   }
 
   .nav-link-active {
     @apply text-accent-green bg-accent-green/10 border border-accent-green/20 px-4 py-2 rounded-lg;
-    @apply font-medium text-sm;
+    @apply font-medium text-sm text-display;
   }
 
   /* Utilities */
@@ -157,6 +156,96 @@
 
   .text-gradient-gold {
     @apply bg-gradient-to-r from-accent-gold to-accent-gold-light bg-clip-text text-transparent;
+  }
+
+  /* Numerical value styles */
+  .number-display {
+    font-family: 'Major Mono Display', monospace;
+  }
+
+  .number-xs {
+    @apply number-display text-xs;
+  }
+
+  .number-sm {
+    @apply number-display text-sm;
+  }
+
+  .number-base {
+    @apply number-display text-base;
+  }
+
+  .number-lg {
+    @apply number-display text-lg;
+  }
+
+  .number-xl {
+    @apply number-display text-xl;
+  }
+
+  .number-2xl {
+    @apply number-display text-2xl;
+  }
+
+  .number-3xl {
+    @apply number-display text-3xl;
+  }
+
+  .number-4xl {
+    @apply number-display text-4xl;
+  }
+
+  /* Space Grotesk utility classes */
+  .font-heading {
+    font-family: var(--font-space-grotesk), sans-serif;
+  }
+
+  .text-display {
+    font-family: var(--font-space-grotesk), sans-serif;
+  }
+
+  .text-display-xs {
+    @apply text-display text-xs font-medium;
+  }
+
+  .text-display-sm {
+    @apply text-display text-sm font-medium;
+  }
+
+  .text-display-base {
+    @apply text-display text-base font-medium;
+  }
+
+  .text-display-lg {
+    @apply text-display text-lg font-semibold;
+  }
+
+  .text-display-xl {
+    @apply text-display text-xl font-semibold;
+  }
+
+  .text-display-2xl {
+    @apply text-display text-2xl font-bold;
+  }
+
+  .text-display-3xl {
+    @apply text-display text-3xl font-bold;
+  }
+
+  .text-display-4xl {
+    @apply text-display text-4xl font-bold;
+  }
+
+  .text-display-5xl {
+    @apply text-display text-5xl font-bold;
+  }
+
+  .text-display-6xl {
+    @apply text-display text-6xl font-bold;
+  }
+
+  .text-display-7xl {
+    @apply text-display text-7xl font-bold;
   }
 
   /* Loading states */

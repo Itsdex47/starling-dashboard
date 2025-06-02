@@ -16,7 +16,7 @@ export default function PaymentsPage() {
   const [activeTab, setActiveTab] = useState('send')
 
   return (
-    <div className="min-h-screen bg-dark-900">
+    <div className="bg-dark-900">
       {/* Organic background pattern */}
       <div className="fixed inset-0 opacity-30">
         <div className="absolute inset-0 bg-organic-pattern"></div>
@@ -33,10 +33,10 @@ export default function PaymentsPage() {
             Payment Hub
           </div>
           
-          <h1 className="text-5xl lg:text-6xl font-bold mb-4">
-            <span className="text-gradient-purple">Comprehensive</span>
+          <h1 className="text-6xl lg:text-7xl font-bold mb-4">
+            <span className="text-gradient-purple text-display-6xl">Comprehensive</span>
             <br />
-            <span className="text-dark-100">Payment Solutions</span>
+            <span className="text-dark-100 text-display-6xl">Payment Solutions</span>
           </h1>
           <p className="text-xl text-dark-300 max-w-2xl mx-auto leading-relaxed">
             Send, receive, and track payments with advanced features designed for 
@@ -151,19 +151,19 @@ export default function PaymentsPage() {
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent-green mb-2">$2.5B+</div>
+              <div className="number-3xl font-bold text-accent-green mb-2">$2.5B+</div>
               <div className="text-dark-400 text-sm">Total Volume</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent-blue mb-2">156</div>
+              <div className="number-3xl font-bold text-accent-blue mb-2">156</div>
               <div className="text-dark-400 text-sm">Countries</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent-gold mb-2">99.9%</div>
+              <div className="number-3xl font-bold text-accent-gold mb-2">99.9%</div>
               <div className="text-dark-400 text-sm">Uptime</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-accent-purple mb-2">50K+</div>
+              <div className="number-3xl font-bold text-accent-purple mb-2">50K+</div>
               <div className="text-dark-400 text-sm">Active Users</div>
             </div>
           </div>

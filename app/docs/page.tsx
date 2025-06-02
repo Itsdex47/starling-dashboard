@@ -2,7 +2,7 @@ import Header from '@/components/Header'
 
 export default function Docs() {
   return (
-    <div className="min-h-screen bg-dark-900">
+    <div className="bg-dark-900">
       {/* Organic background pattern */}
       <div className="fixed inset-0 opacity-30">
         <div className="absolute inset-0 bg-organic-pattern"></div>

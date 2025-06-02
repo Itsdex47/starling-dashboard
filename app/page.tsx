@@ -38,7 +38,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-900">
+    <div className="bg-dark-900">
       {/* Organic background pattern */}
       <div className="fixed inset-0 opacity-30">
         <div className="absolute inset-0 bg-organic-pattern"></div>
@@ -55,10 +55,10 @@ export default function Dashboard() {
             Live Network
           </div>
           
-          <h1 className="text-5xl lg:text-6xl font-bold mb-4">
-            <span className="text-gradient">Cross-Border</span>
+          <h1 className="text-6xl lg:text-7xl font-bold mb-4">
+            <span className="text-gradient text-display-6xl">Cross-Border</span>
             <br />
-            <span className="text-dark-100">Payment Network</span>
+            <span className="text-dark-100 text-display-6xl">Payment Network</span>
           </h1>
           <p className="text-xl text-dark-300 max-w-2xl mx-auto leading-relaxed">
             Send money anywhere in the world with instant settlement, 
@@ -77,20 +77,20 @@ export default function Dashboard() {
             <div className="flex items-center space-x-4">
               <div className="w-3 h-3 bg-accent-green rounded-full animate-pulse glow-green"></div>
               <div>
-                <h3 className="text-lg font-semibold text-dark-100">Network Status</h3>
+                <h3 className="text-lg font-semibold text-dark-100 text-display-lg">Network Status</h3>
                 <p className="text-dark-400">All systems operational</p>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-accent-green">99.9%</div>
+              <div className="number-2xl font-bold text-accent-green">99.9%</div>
               <div className="text-sm text-dark-400">Uptime</div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-accent-gold">2.3s</div>
+              <div className="number-2xl font-bold text-accent-gold">2.3s</div>
               <div className="text-sm text-dark-400">Avg Settlement</div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-accent-purple">156</div>
+              <div className="number-2xl font-bold text-accent-purple">156</div>
               <div className="text-sm text-dark-400">Countries</div>
             </div>
           </div>
@@ -125,7 +125,7 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-dark-100 mb-2">Instant Settlement</h3>
+            <h3 className="text-lg font-semibold text-dark-100 mb-2 text-display-lg">Instant Settlement</h3>
             <p className="text-dark-400 text-sm">
               Payments settle in seconds, not days. Our blockchain infrastructure ensures real-time finality.
             </p>
@@ -138,7 +138,7 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-dark-100 mb-2">Bank-Grade Security</h3>
+            <h3 className="text-lg font-semibold text-dark-100 mb-2 text-display-lg">Bank-Grade Security</h3>
             <p className="text-dark-400 text-sm">
               Multi-layer encryption, fraud detection, and compliance with international banking standards.
             </p>
@@ -151,7 +151,7 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-dark-100 mb-2">Transparent Pricing</h3>
+            <h3 className="text-lg font-semibold text-dark-100 mb-2 text-display-lg">Transparent Pricing</h3>
             <p className="text-dark-400 text-sm">
               No hidden fees. Real-time exchange rates. See exactly what you pay before you send.
             </p>

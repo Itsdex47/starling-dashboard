@@ -72,7 +72,7 @@ export default function PaymentStats({ payments, loading = false }: PaymentStats
               </div>
             </div>
             <p className="text-sm font-medium text-dark-400 mb-1">Total Sent</p>
-            <p className="text-2xl font-bold text-dark-100">£{stats.totalSent.toLocaleString()}</p>
+            <p className="number-2xl font-bold text-dark-100">£{stats.totalSent.toLocaleString()}</p>
           </div>
           <div className="w-12 h-12 bg-gradient-to-br from-status-error/20 to-status-error/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
             <div className="w-6 h-6 bg-status-error/30 rounded-full"></div>
@@ -100,7 +100,7 @@ export default function PaymentStats({ payments, loading = false }: PaymentStats
               </div>
             </div>
             <p className="text-sm font-medium text-dark-400 mb-1">Total Received</p>
-            <p className="text-2xl font-bold text-dark-100">£{stats.totalReceived.toLocaleString()}</p>
+            <p className="number-2xl font-bold text-dark-100">£{stats.totalReceived.toLocaleString()}</p>
           </div>
           <div className="w-12 h-12 bg-gradient-to-br from-status-success/20 to-status-success/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
             <div className="w-6 h-6 bg-status-success/30 rounded-full"></div>
@@ -128,7 +128,7 @@ export default function PaymentStats({ payments, loading = false }: PaymentStats
               </div>
             </div>
             <p className="text-sm font-medium text-dark-400 mb-1">Pending</p>
-            <p className="text-2xl font-bold text-dark-100">{stats.pendingPayments}</p>
+            <p className="number-2xl font-bold text-dark-100">{stats.pendingPayments}</p>
           </div>
           <div className="w-12 h-12 bg-gradient-to-br from-status-pending/20 to-status-pending/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
             <div className="w-6 h-6 bg-status-pending/30 rounded-full animate-pulse"></div>
@@ -156,7 +156,7 @@ export default function PaymentStats({ payments, loading = false }: PaymentStats
               </div>
             </div>
             <p className="text-sm font-medium text-dark-400 mb-1">Completed</p>
-            <p className="text-2xl font-bold text-dark-100">{stats.successfulPayments}</p>
+            <p className="number-2xl font-bold text-dark-100">{stats.successfulPayments}</p>
           </div>
           <div className="w-12 h-12 bg-gradient-to-br from-accent-blue/20 to-accent-blue/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
             <div className="w-6 h-6 bg-accent-blue/30 rounded-full"></div>

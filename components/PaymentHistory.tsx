@@ -371,7 +371,7 @@ export default function PaymentHistory() {
             <div className="flex items-center justify-center bg-white/70 rounded-xl border-2 border-gray-200 px-4 py-3">
               <FunnelIcon className="h-5 w-5 text-blue-600 mr-2" />
               <span className="text-lg font-medium text-gray-900">
-                {filteredPayments.length} of {payments.length}
+                <span className="number-lg">{filteredPayments.length}</span> of <span className="number-lg">{payments.length}</span>
               </span>
             </div>
           </div>
@@ -435,7 +435,7 @@ export default function PaymentHistory() {
 
                       {/* Amount */}
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900">
+                        <div className="number-2xl font-bold text-gray-900">
                           {payment.currency} {payment.amount.toLocaleString()}
                         </div>
                         <div className="text-sm text-gray-500 capitalize">

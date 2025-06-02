@@ -223,7 +223,7 @@ export default function ReceivePaymentForm() {
                         onChange={(e) => setAmount(e.target.value)}
                         className={`block w-full pl-10 pr-10 py-3 border-2 rounded-xl transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 hover:border-gray-300 ${
                           errors.amount ? 'border-red-300 bg-red-50/50' : 'border-gray-200 bg-gray-50/30'
-                        } text-lg font-medium text-gray-900 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                        } text-lg font-medium text-gray-900 number-display [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
                         placeholder="0.00"
                         min="0.01"
                         step="0.01"
@@ -373,7 +373,7 @@ export default function ReceivePaymentForm() {
               {/* Request Summary */}
               <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-900 mb-2">
+                  <div className="number-3xl font-bold text-blue-900 mb-2">
                     {selectedCurrency?.symbol}{amount} {currency}
                   </div>
                   {description && (
@@ -433,7 +433,7 @@ export default function ReceivePaymentForm() {
                     </div>
                     <div className="space-y-2">
                       <p className="text-gray-900 font-semibold text-lg">
-                        Scan to pay {selectedCurrency?.symbol}{amount} {currency}
+                        Scan to pay <span className="number-lg">{selectedCurrency?.symbol}{amount} {currency}</span>
                       </p>
                       {description && (
                         <p className="text-gray-600 text-base">{description}</p>

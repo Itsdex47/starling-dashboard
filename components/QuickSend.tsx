@@ -112,7 +112,7 @@ export default function QuickSend({ onPaymentSent }: QuickSendProps) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="text-lg font-bold text-dark-100 mb-2">Payment Sent!</h3>
+        <h3 className="text-lg font-bold text-dark-100 mb-2 text-display-lg">Payment Sent!</h3>
         <p className="text-dark-400 text-sm">
           Your payment to {formData.recipient} is being processed
         </p>
@@ -136,7 +136,7 @@ export default function QuickSend({ onPaymentSent }: QuickSendProps) {
             </svg>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-dark-100">Quick Send</h2>
+            <h2 className="text-lg font-bold text-dark-100 text-display-lg">Quick Send</h2>
             <p className="text-sm text-dark-400">Send money instantly worldwide</p>
           </div>
         </div>
@@ -168,7 +168,7 @@ export default function QuickSend({ onPaymentSent }: QuickSendProps) {
               value={formData.recipient}
               onChange={handleInputChange}
               placeholder="john@example.com or +44 7700 900000"
-              className="form-input text-sm"
+              className="bg-dark-800/30 border border-dark-600/50 text-dark-100 rounded-xl pl-4 pr-12 py-3 focus:ring-2 focus:ring-accent-green/50 focus:border-accent-green/50 placeholder-dark-400 transition-all duration-200 text-sm w-full"
               required
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -195,7 +195,7 @@ export default function QuickSend({ onPaymentSent }: QuickSendProps) {
                 placeholder="0.00"
                 min="0.01"
                 step="0.01"
-                className="form-input pl-8 pr-8 text-sm w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="form-input pl-8 pr-8 text-sm w-full number-display [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 required
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -282,13 +282,13 @@ export default function QuickSend({ onPaymentSent }: QuickSendProps) {
           <div className="p-3 bg-accent-blue/10 border border-accent-blue/20 rounded-lg">
             <div className="flex items-center justify-between">
               <span className="text-xs text-dark-300">Exchange Rate</span>
-              <span className="text-xs font-medium text-accent-blue">
+              <span className="number-xs font-medium text-accent-blue">
                 1 GBP = {exchangeRate.toFixed(4)} {formData.currency}
               </span>
             </div>
             <div className="flex items-center justify-between mt-1">
               <span className="text-xs text-dark-300">Recipient Gets</span>
-              <span className="text-sm font-bold text-dark-100">
+              <span className="number-sm font-bold text-dark-100">
                 {(parseFloat(formData.amount) * exchangeRate).toFixed(2)} {formData.currency}
               </span>
             </div>
@@ -307,7 +307,7 @@ export default function QuickSend({ onPaymentSent }: QuickSendProps) {
             value={formData.reference}
             onChange={handleInputChange}
             placeholder="Payment for services..."
-            className="form-input text-sm"
+            className="form-input text-sm w-full"
             maxLength={100}
           />
         </div>
@@ -316,18 +316,18 @@ export default function QuickSend({ onPaymentSent }: QuickSendProps) {
         <div className="p-3 bg-dark-800/30 rounded-lg border border-dark-600/30">
           <div className="flex items-center justify-between text-xs">
             <span className="text-dark-400">Transaction Fee</span>
-            <span className="text-dark-200 font-medium">£0.00</span>
+            <span className="number-xs text-dark-200 font-medium">£0.00</span>
           </div>
           <div className="flex items-center justify-between text-xs mt-1">
             <span className="text-dark-400">Exchange Fee</span>
-            <span className="text-dark-200 font-medium">
+            <span className="number-xs text-dark-200 font-medium">
               {formData.currency !== 'GBP' ? '0.5%' : 'Free'}
             </span>
           </div>
           <div className="border-t border-dark-600/30 mt-2 pt-2">
             <div className="flex items-center justify-between">
               <span className="text-dark-300 font-medium text-sm">Total Cost</span>
-              <span className="text-dark-100 font-bold text-sm">
+              <span className="number-sm text-dark-100 font-bold">
                 £{formData.amount ? parseFloat(formData.amount).toFixed(2) : '0.00'}
               </span>
             </div>
