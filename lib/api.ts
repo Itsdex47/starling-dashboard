@@ -94,4 +94,28 @@ export async function sendPayment(payment: Omit<Payment, 'id' | 'date' | 'status
   // return response.json()
   
   return newPayment
+}
+
+export async function getPaymentStatus(paymentId: string): Promise<Payment> {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 300))
+  
+  // Find the payment in our mock data or return a default
+  const payment = mockPayments.find(p => p.id === paymentId)
+  
+  if (payment) {
+    return payment
+  }
+  
+  // Return a default payment if not found
+  return {
+    id: paymentId,
+    amount: 0,
+    currency: 'GBP',
+    type: 'sent',
+    status: 'completed',
+    recipient: 'Unknown',
+    date: new Date().toISOString(),
+    description: 'Payment details not found'
+  }
 } 
