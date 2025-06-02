@@ -83,7 +83,7 @@ export default function PaymentHistory() {
       }
       
       if (dateRange !== 'all') {
-        filtered = filtered.filter(payment => new Date(payment.date) >= filterDate)
+        filtered = filtered.filter(payment => new Date(payment.timestamp) >= filterDate)
       }
     }
 
@@ -93,7 +93,7 @@ export default function PaymentHistory() {
   const exportToCSV = () => {
     const headers = ['Date', 'ID', 'Type', 'Recipient', 'Amount', 'Currency', 'Status', 'Description']
     const csvData = filteredPayments.map(payment => [
-      new Date(payment.date).toLocaleDateString(),
+      new Date(payment.timestamp).toLocaleDateString(),
       payment.id,
       payment.type,
       payment.recipient,
@@ -268,7 +268,7 @@ export default function PaymentHistory() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
-                          {new Date(payment.date).toLocaleDateString()}
+                          {new Date(payment.timestamp).toLocaleDateString()}
                         </div>
                         <div className="text-xs text-gray-500 font-mono">
                           {payment.id.substring(0, 8)}...

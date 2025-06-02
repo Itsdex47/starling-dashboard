@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { PaperAirplaneIcon } from '@heroicons/react/24/outline'
+import { useState, useEffect } from 'react'
 import { sendPayment } from '@/lib/api'
 
 interface QuickSendProps {
@@ -9,136 +8,286 @@ interface QuickSendProps {
 }
 
 export default function QuickSend({ onPaymentSent }: QuickSendProps) {
-  const [amount, setAmount] = useState('100')
-  const [recipientName, setRecipientName] = useState('Maria Rodriguez')
+  const [formData, setFormData] = useState({
+    recipient: '',
+    amount: '',
+    currency: 'GBP',
+    reference: ''
+  })
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null)
+
+  const currencies = [
+    { code: 'GBP', name: 'British Pound', flag: '🇬🇧' },
+    { code: 'USD', name: 'US Dollar', flag: '🇺🇸' },
+    { code: 'EUR', name: 'Euro', flag: '🇪🇺' },
+    { code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵' },
+    { code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦' },
+    { code: 'AUD', name: 'Australian Dollar', flag: '🇦🇺' }
+  ]
+
+  useEffect(() => {
+    if (formData.currency !== 'GBP' && formData.amount) {
+      // Simulate fetching exchange rate
+      setExchangeRate(Math.random() * 2 + 0.5)
+    } else {
+      setExchangeRate(null)
+    }
+  }, [formData.currency, formData.amount])
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+    setError('')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-    setSuccess('')
 
     try {
-      const response = await sendPayment({
-        amount: parseFloat(amount),
-        currency: 'GBP',
+      await sendPayment({
+        recipient: formData.recipient,
+        amount: parseFloat(formData.amount),
+        currency: formData.currency,
         type: 'sent',
-        recipient: recipientName,
-        description: 'Quick Send payment'
+        reference: formData.reference
       })
 
-      setSuccess(`Payment sent! Tracking ID: ${response.id.substring(0, 8)}...`)
-      setAmount('100')
-      setRecipientName('Maria Rodriguez')
-      onPaymentSent()
-    } catch (err: any) {
-      setError(err.message || 'Failed to send payment')
+      setSuccess(true)
+      setFormData({
+        recipient: '',
+        amount: '',
+        currency: 'GBP',
+        reference: ''
+      })
+
+      setTimeout(() => {
+        setSuccess(false)
+        onPaymentSent()
+      }, 2000)
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send payment')
     } finally {
       setLoading(false)
     }
   }
 
+  const isValid = formData.recipient && formData.amount && parseFloat(formData.amount) > 0
+
+  if (success) {
+    return (
+      <div className="glass-card p-6 text-center">
+        <div className="w-16 h-16 bg-status-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-bold text-dark-100 mb-2">Payment Sent!</h3>
+        <p className="text-dark-400 text-sm">
+          Your payment to {formData.recipient} is being processed
+        </p>
+        <div className="mt-4 flex items-center justify-center space-x-2">
+          <div className="w-2 h-2 bg-status-success rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-status-success rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+          <div className="w-2 h-2 bg-status-success rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="card">
-      <div className="flex items-center mb-6">
-        <PaperAirplaneIcon className="h-6 w-6 text-starling-600" />
-        <h2 className="ml-2 text-lg font-semibold text-gray-900">Quick Send</h2>
+    <div className="glass-card">
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-dark-600/30">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-accent-green to-accent-blue rounded-xl flex items-center justify-center">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-dark-100">Quick Send</h2>
+            <p className="text-sm text-dark-400">Send money instantly worldwide</p>
+          </div>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {error && (
+          <div className="p-4 bg-status-error/10 border border-status-error/20 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <svg className="w-5 h-5 text-status-error flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+              <p className="text-sm text-status-error font-medium">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Recipient */}
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-            Amount (USD)
+          <label htmlFor="recipient" className="form-label">
+            Recipient Email or Phone
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">$</span>
-            </div>
             <input
-              type="number"
-              id="amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="block w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-starling-500 focus:border-starling-500"
-              placeholder="100"
-              min="1"
-              max="10000"
-              step="0.01"
+              type="text"
+              id="recipient"
+              name="recipient"
+              value={formData.recipient}
+              onChange={handleInputChange}
+              placeholder="john@example.com or +44 7700 900000"
+              className="form-input"
               required
             />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+              <svg className="w-5 h-5 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
           </div>
         </div>
 
+        {/* Amount and Currency */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="amount" className="form-label">
+              Amount
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                id="amount"
+                name="amount"
+                value={formData.amount}
+                onChange={handleInputChange}
+                placeholder="0.00"
+                min="0.01"
+                step="0.01"
+                className="form-input"
+                required
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center">
+                <span className="text-dark-400 font-medium">£</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="currency" className="form-label">
+              Currency
+            </label>
+            <select
+              id="currency"
+              name="currency"
+              value={formData.currency}
+              onChange={handleInputChange}
+              className="form-select"
+            >
+              {currencies.map((currency) => (
+                <option key={currency.code} value={currency.code}>
+                  {currency.flag} {currency.code}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Exchange Rate Info */}
+        {exchangeRate && formData.amount && (
+          <div className="p-4 bg-accent-blue/10 border border-accent-blue/20 rounded-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-dark-300">Exchange Rate</span>
+              <span className="text-sm font-medium text-accent-blue">
+                1 GBP = {exchangeRate.toFixed(4)} {formData.currency}
+              </span>
+            </div>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-sm text-dark-300">Recipient Gets</span>
+              <span className="text-sm font-bold text-dark-100">
+                {(parseFloat(formData.amount) * exchangeRate).toFixed(2)} {formData.currency}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Reference */}
         <div>
-          <label htmlFor="recipient" className="block text-sm font-medium text-gray-700 mb-1">
-            Recipient Name
+          <label htmlFor="reference" className="form-label">
+            Reference <span className="text-dark-500">(Optional)</span>
           </label>
           <input
             type="text"
-            id="recipient"
-            value={recipientName}
-            onChange={(e) => setRecipientName(e.target.value)}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-starling-500 focus:border-starling-500"
-            placeholder="Maria Rodriguez"
-            required
+            id="reference"
+            name="reference"
+            value={formData.reference}
+            onChange={handleInputChange}
+            placeholder="Payment for services..."
+            className="form-input"
+            maxLength={100}
           />
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Exchange Rate:</span>
-            <span className="font-medium">1 USD = 18.50 MXN</span>
+        {/* Fee Information */}
+        <div className="p-4 bg-dark-800/30 rounded-lg border border-dark-600/30">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-dark-400">Transaction Fee</span>
+            <span className="text-dark-200 font-medium">£0.00</span>
           </div>
-          <div className="flex justify-between text-sm mt-1">
-            <span className="text-gray-600">Fee (1.5%):</span>
-            <span className="font-medium">${(parseFloat(amount || '0') * 0.015).toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-sm mt-1 pt-1 border-t border-gray-200">
-            <span className="text-gray-600">Recipient Gets:</span>
-            <span className="font-semibold text-green-600">
-              {((parseFloat(amount || '0') * 0.985) * 18.5).toFixed(2)} MXN
+          <div className="flex items-center justify-between text-sm mt-1">
+            <span className="text-dark-400">Exchange Fee</span>
+            <span className="text-dark-200 font-medium">
+              {formData.currency !== 'GBP' ? '0.5%' : 'Free'}
             </span>
+          </div>
+          <div className="border-t border-dark-600/30 mt-3 pt-3">
+            <div className="flex items-center justify-between">
+              <span className="text-dark-300 font-medium">Total Cost</span>
+              <span className="text-dark-100 font-bold">
+                £{formData.amount ? parseFloat(formData.amount).toFixed(2) : '0.00'}
+              </span>
+            </div>
           </div>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        {success && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-sm text-green-600">{success}</p>
-          </div>
-        )}
-
+        {/* Submit Button */}
         <button
           type="submit"
-          disabled={loading}
-          className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          disabled={!isValid || loading}
+          className="btn-primary w-full text-center"
         >
           {loading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Sending...
-            </>
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Sending Payment...</span>
+            </div>
           ) : (
-            <>
-              <PaperAirplaneIcon className="h-4 w-4 mr-2" />
-              Send Payment
-            </>
+            <div className="flex items-center justify-center space-x-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
+              <span>Send Payment</span>
+            </div>
           )}
         </button>
-      </form>
 
-      <div className="mt-4 text-xs text-gray-500">
-        <p>🌟 Demo mode - no real money will be transferred</p>
-        <p>⚡ Powered by Solana blockchain</p>
-      </div>
+        {/* Security Notice */}
+        <div className="flex items-start space-x-2 p-3 bg-accent-gold/10 border border-accent-gold/20 rounded-lg">
+          <svg className="w-5 h-5 text-accent-gold flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <div>
+            <p className="text-xs text-accent-gold font-medium">Secure & Encrypted</p>
+            <p className="text-xs text-dark-400">Your payment is protected by bank-grade security</p>
+          </div>
+        </div>
+      </form>
     </div>
   )
 }

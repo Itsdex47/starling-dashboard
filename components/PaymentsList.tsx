@@ -1,80 +1,120 @@
 'use client'
 
 import { useState } from 'react'
-import { 
-  ArrowPathIcon,
-  EyeIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon
-} from '@heroicons/react/24/outline'
+import { ArrowPathIcon, FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import PaymentDetailModal from './PaymentDetailModal'
 
+interface Payment {
+  id: string
+  recipient: string
+  amount: number
+  currency: string
+  status: 'completed' | 'pending' | 'failed'
+  type: 'sent' | 'received'
+  timestamp: string
+  reference?: string
+  method?: string
+}
+
 interface PaymentsListProps {
-  payments: any[]
+  payments: Payment[]
   loading: boolean
   error: string
   onRefresh: () => void
 }
 
 export default function PaymentsList({ payments, loading, error, onRefresh }: PaymentsListProps) {
-  const [selectedPayment, setSelectedPayment] = useState<any>(null)
-  const [showDetail, setShowDetail] = useState(false)
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>('all')
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />
+        return (
+          <div className="w-3 h-3 bg-status-success rounded-full"></div>
+        )
+      case 'pending':
+        return (
+          <div className="w-3 h-3 bg-status-pending rounded-full animate-pulse"></div>
+        )
       case 'failed':
-        return <XCircleIcon className="h-5 w-5 text-red-500" />
+        return (
+          <div className="w-3 h-3 bg-status-error rounded-full"></div>
+        )
       default:
-        return <ClockIcon className="h-5 w-5 text-yellow-500" />
+        return null
     }
   }
 
-  const getStatusClass = (status: string) => {
+  const getStatusBadge = (status: string) => {
+    const baseClasses = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+    
     switch (status) {
       case 'completed':
-        return 'status-completed'
+        return `${baseClasses} status-success`
+      case 'pending':
+        return `${baseClasses} status-pending`
       case 'failed':
-        return 'status-failed'
+        return `${baseClasses} status-error`
       default:
-        return 'status-processing'
+        return `${baseClasses} status-info`
     }
   }
 
-  const handleViewDetails = (payment: any) => {
-    setSelectedPayment(payment)
-    setShowDetail(true)
+  const getTypeIcon = (type: string) => {
+    if (type === 'sent') {
+      return (
+        <div className="w-8 h-8 bg-status-error/20 rounded-full flex items-center justify-center">
+          <svg className="w-4 h-4 text-status-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+          </svg>
+        </div>
+      )
+    } else {
+      return (
+        <div className="w-8 h-8 bg-status-success/20 rounded-full flex items-center justify-center">
+          <svg className="w-4 h-4 text-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+          </svg>
+        </div>
+      )
+    }
   }
+
+  const filteredPayments = payments.filter(payment => {
+    const matchesSearch = payment.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         payment.id.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = statusFilter === 'all' || payment.status === statusFilter
+    const matchesType = typeFilter === 'all' || payment.type === typeFilter
+    
+    return matchesSearch && matchesStatus && matchesType
+  })
 
   if (loading) {
     return (
-      <div className="card">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Payments</h2>
-          <button className="btn-secondary" disabled>
-            <ArrowPathIcon className="h-4 w-4 mr-2" />
-            Refresh
-          </button>
+      <div className="glass-card">
+        <div className="px-6 py-4 border-b border-dark-600/30">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="h-6 bg-dark-700 rounded shimmer w-32 mb-2"></div>
+              <div className="h-4 bg-dark-700 rounded shimmer w-48"></div>
+            </div>
+            <div className="h-10 bg-dark-700 rounded shimmer w-24"></div>
+          </div>
         </div>
         
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full shimmer" />
-                  <div>
-                    <div className="h-4 bg-gray-200 rounded shimmer mb-2 w-32" />
-                    <div className="h-3 bg-gray-200 rounded shimmer w-24" />
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="h-4 bg-gray-200 rounded shimmer mb-2 w-20" />
-                  <div className="h-3 bg-gray-200 rounded shimmer w-16" />
-                </div>
+        <div className="p-6 space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex items-center space-x-4 p-4 bg-dark-800/50 rounded-lg">
+              <div className="w-8 h-8 bg-dark-700 rounded-full shimmer"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-dark-700 rounded shimmer w-32"></div>
+                <div className="h-3 bg-dark-700 rounded shimmer w-48"></div>
               </div>
+              <div className="h-6 bg-dark-700 rounded shimmer w-20"></div>
+              <div className="h-4 bg-dark-700 rounded shimmer w-16"></div>
             </div>
           ))}
         </div>
@@ -82,90 +122,197 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
     )
   }
 
-  return (
-    <>
-      <div className="card">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Payments</h2>
-          <button 
+  if (error) {
+    return (
+      <div className="glass-card">
+        <div className="p-6 text-center">
+          <div className="w-12 h-12 bg-status-error/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-status-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-dark-100 mb-2">Failed to load payments</h3>
+          <p className="text-dark-400 mb-4">{error}</p>
+          <button
             onClick={onRefresh}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
-            title="Refresh payments"
+            className="btn-primary"
           >
-            <ArrowPathIcon className="h-5 w-5" />
+            Try Again
           </button>
         </div>
+      </div>
+    )
+  }
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-sm text-red-600">{error}</p>
+  return (
+    <>
+      <div className="glass-card">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-dark-600/30">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-dark-100">Recent Transactions</h2>
+              <p className="text-sm text-dark-400">
+                {filteredPayments.length} of {payments.length} transactions
+              </p>
+            </div>
+            <button
+              onClick={onRefresh}
+              className="btn-icon"
+              disabled={loading}
+            >
+              <ArrowPathIcon className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+            </button>
           </div>
-        )}
 
-        {payments.length === 0 ? (
-          <div className="text-center py-12">
-            <ClockIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No payments yet</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Send your first payment using the Quick Send form
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {payments.slice(0, 10).map((payment) => (
-              <div 
-                key={payment.id} 
-                className="border border-gray-200 rounded-lg p-4 hover:border-starling-300 transition-colors"
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Search */}
+            <div className="relative flex-1">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-dark-400" />
+              <input
+                type="text"
+                placeholder="Search transactions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="form-input pl-10 w-full"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <div className="flex items-center space-x-2">
+              <FunnelIcon className="h-4 w-4 text-dark-400" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="form-select"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex-shrink-0">
-                      {getStatusIcon(payment.status)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        To {payment.recipient || 'Unknown'}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {payment.id.substring(0, 8)}... • {payment.description || 'Payment'}
-                      </p>
-                    </div>
+                <option value="all">All Status</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+                <option value="failed">Failed</option>
+              </select>
+
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="form-select"
+              >
+                <option value="all">All Types</option>
+                <option value="sent">Sent</option>
+                <option value="received">Received</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Transaction List */}
+        <div className="divide-y divide-dark-600/30">
+          {filteredPayments.length === 0 ? (
+            <div className="p-8 text-center">
+              <div className="w-12 h-12 bg-dark-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-dark-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-dark-100 mb-2">No transactions found</h3>
+              <p className="text-dark-400">
+                {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' 
+                  ? 'Try adjusting your filters' 
+                  : 'Your transactions will appear here'}
+              </p>
+            </div>
+          ) : (
+            filteredPayments.map((payment) => (
+              <div
+                key={payment.id}
+                onClick={() => setSelectedPayment(payment)}
+                className="px-6 py-4 hover:bg-dark-800/30 cursor-pointer transition-colors group"
+              >
+                <div className="flex items-center space-x-4">
+                  {/* Type Icon */}
+                  <div className="flex-shrink-0">
+                    {getTypeIcon(payment.type)}
                   </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">
-                        £{payment.amount?.toLocaleString() || '0'}
+
+                  {/* Transaction Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-dark-100 truncate group-hover:text-accent-green transition-colors">
+                        {payment.type === 'sent' ? `To ${payment.recipient}` : `From ${payment.recipient}`}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        {payment.currency || 'GBP'}
-                      </p>
+                      <div className="text-right">
+                        <p className={`text-sm font-bold ${
+                          payment.type === 'sent' ? 'text-status-error' : 'text-status-success'
+                        }`}>
+                          {payment.type === 'sent' ? '-' : '+'}£{payment.amount.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-dark-400">{payment.currency}</p>
+                      </div>
                     </div>
                     
-                    <span className={getStatusClass(payment.status)}>
-                      {payment.status}
-                    </span>
-                    
-                    <button 
-                      onClick={() => handleViewDetails(payment)}
-                      className="p-1 text-gray-400 hover:text-gray-600"
-                      title="View Details"
-                    >
-                      <EyeIcon className="h-4 w-4" />
-                    </button>
+                    <div className="mt-1 flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {getStatusIcon(payment.status)}
+                        <span className="text-xs text-dark-400">
+                          {new Date(payment.timestamp).toLocaleDateString()} at{' '}
+                          {new Date(payment.timestamp).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </span>
+                      </div>
+                      <span className={getStatusBadge(payment.status)}>
+                        {payment.status}
+                      </span>
+                    </div>
+
+                    {payment.reference && (
+                      <p className="mt-1 text-xs text-dark-500 font-mono">
+                        Ref: {payment.reference}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Chevron */}
+                  <div className="flex-shrink-0">
+                    <svg className="w-5 h-5 text-dark-500 group-hover:text-dark-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
                 </div>
               </div>
-            ))}
+            ))
+          )}
+        </div>
+
+        {/* Pagination placeholder */}
+        {filteredPayments.length > 0 && (
+          <div className="px-6 py-4 border-t border-dark-600/30 bg-dark-800/20">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-dark-400">
+                Showing {filteredPayments.length} transactions
+              </p>
+              <div className="flex items-center space-x-2">
+                <button className="btn-ghost text-xs px-3 py-1" disabled>
+                  Previous
+                </button>
+                <span className="text-xs text-dark-400">Page 1 of 1</span>
+                <button className="btn-ghost text-xs px-3 py-1" disabled>
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
 
-      {showDetail && selectedPayment && (
-        <PaymentDetailModal 
+      {/* Payment Detail Modal */}
+      {selectedPayment && (
+        <PaymentDetailModal
           payment={selectedPayment}
-          isOpen={showDetail}
-          onClose={() => setShowDetail(false)}
+          isOpen={!!selectedPayment}
+          onClose={() => setSelectedPayment(null)}
         />
       )}
     </>

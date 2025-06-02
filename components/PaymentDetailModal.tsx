@@ -1,15 +1,8 @@
 'use client'
 
-import { Fragment, useState, useEffect } from 'react'
+import { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { 
-  XMarkIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ArrowPathIcon
-} from '@heroicons/react/24/outline'
-import { getPaymentStatus } from '@/lib/api'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 
 interface PaymentDetailModalProps {
   payment: any
@@ -18,53 +11,56 @@ interface PaymentDetailModalProps {
 }
 
 export default function PaymentDetailModal({ payment, isOpen, onClose }: PaymentDetailModalProps) {
-  const [paymentDetails, setPaymentDetails] = useState(payment)
-  const [loading, setLoading] = useState(false)
+  if (!payment) return null
 
-  const refreshPaymentStatus = async () => {
-    setLoading(true)
-    try {
-      const details = await getPaymentStatus(payment.id)
-      setPaymentDetails(details)
-    } catch (error) {
-      console.error('Failed to refresh payment status:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    const fetchDetails = async () => {
-      if (isOpen && payment?.id) {
-        setLoading(true)
-        try {
-          const details = await getPaymentStatus(payment.id)
-          setPaymentDetails(details)
-        } catch (error) {
-          console.error('Failed to fetch payment details:', error)
-        }
-        setLoading(false)
-      }
-    }
-
-    fetchDetails()
-  }, [isOpen, payment?.id])
-
-  const getStepIcon = (status: string) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />
+        return (
+          <div className="w-12 h-12 bg-status-success/20 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        )
+      case 'pending':
+        return (
+          <div className="w-12 h-12 bg-status-pending/20 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-status-pending animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        )
       case 'failed':
-        return <XCircleIcon className="h-5 w-5 text-red-500" />
+        return (
+          <div className="w-12 h-12 bg-status-error/20 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-status-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+        )
       default:
-        return <ClockIcon className="h-5 w-5 text-yellow-500" />
+        return null
     }
   }
 
-  const steps = paymentDetails?.timeline || []
+  const getStatusBadge = (status: string) => {
+    const baseClasses = "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+    
+    switch (status) {
+      case 'completed':
+        return `${baseClasses} status-success`
+      case 'pending':
+        return `${baseClasses} status-pending`
+      case 'failed':
+        return `${baseClasses} status-error`
+      default:
+        return `${baseClasses} status-info`
+    }
+  }
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
+    <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
           as={Fragment}
@@ -75,142 +71,238 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className="modal-overlay" />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
+        <div className="fixed inset-0 z-10 overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
+              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-200"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
+              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <div className="flex items-center justify-between mb-6">
-                  <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                    Payment Details
-                  </Dialog.Title>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={refreshPaymentStatus}
-                      disabled={loading}
-                      className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
-                    >
-                      <ArrowPathIcon className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-                    </button>
-                    <button
-                      onClick={onClose}
-                      className="p-2 text-gray-400 hover:text-gray-600"
-                    >
-                      <XMarkIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Payment Summary */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <div className="grid grid-cols-2 gap-4">
+              <Dialog.Panel className="modal-content max-w-2xl w-full">
+                {/* Header */}
+                <div className="flex items-center justify-between pb-6 border-b border-dark-600/30">
+                  <div className="flex items-center space-x-4">
+                    {getStatusIcon(payment.status)}
                     <div>
-                      <p className="text-sm text-gray-600">Amount</p>
-                      <p className="text-lg font-semibold">${paymentDetails?.amount?.input?.toLocaleString() || '0'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Recipient Gets</p>
-                      <p className="text-lg font-semibold text-green-600">
-                        {paymentDetails?.amount?.output?.toLocaleString() || '0'} MXN
+                      <Dialog.Title className="text-xl font-bold text-dark-100">
+                        Payment Details
+                      </Dialog.Title>
+                      <p className="text-sm text-dark-400 mt-1">
+                        Transaction ID: {payment.id}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Recipient</p>
-                      <p className="font-medium">{paymentDetails?.recipient?.name || 'Unknown'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Status</p>
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        paymentDetails?.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        paymentDetails?.status === 'failed' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'
+                  </div>
+                  <button
+                    onClick={onClose}
+                    className="btn-icon"
+                  >
+                    <XMarkIcon className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="pt-6 space-y-6">
+                  {/* Status and Amount */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="text-center sm:text-left">
+                      <p className="text-sm text-dark-400 mb-2">Amount</p>
+                      <p className={`text-3xl font-bold ${
+                        payment.type === 'sent' ? 'text-status-error' : 'text-status-success'
                       }`}>
-                        {paymentDetails?.status || 'unknown'}
+                        {payment.type === 'sent' ? '-' : '+'}£{payment.amount?.toLocaleString() || '0'}
+                      </p>
+                      <p className="text-sm text-dark-400 mt-1">{payment.currency || 'GBP'}</p>
+                    </div>
+                    
+                    <div className="text-center sm:text-right">
+                      <p className="text-sm text-dark-400 mb-2">Status</p>
+                      <span className={getStatusBadge(payment.status)}>
+                        {payment.status}
                       </span>
                     </div>
                   </div>
-                </div>
 
-                {/* Progress Timeline */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-medium text-gray-900 mb-4">Payment Progress</h4>
-                  
-                  {paymentDetails?.progress && (
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm text-gray-600 mb-1">
-                        <span>Progress</span>
-                        <span>{paymentDetails.progress.percentage}%</span>
+                  {/* Transaction Details */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-dark-400 mb-1">
+                          {payment.type === 'sent' ? 'Recipient' : 'Sender'}
+                        </p>
+                        <p className="text-dark-100 font-medium">{payment.recipient}</p>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-starling-600 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${paymentDetails.progress.percentage}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {paymentDetails.progress.completedSteps} of {paymentDetails.progress.totalSteps} steps completed
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="space-y-3">
-                    {steps.map((step: any, index: number) => (
-                      <div key={index} className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 mt-0.5">
-                          {getStepIcon(step.status)}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{step.step}</p>
-                          <p className="text-sm text-gray-600">{step.details}</p>
-                          {step.transactionHash && (
-                            <p className="text-xs text-gray-500 font-mono">
-                              TX: {step.transactionHash}
-                            </p>
+                      
+                      <div>
+                        <p className="text-sm text-dark-400 mb-1">Transaction Type</p>
+                        <div className="flex items-center space-x-2">
+                          {payment.type === 'sent' ? (
+                            <div className="w-6 h-6 bg-status-error/20 rounded-full flex items-center justify-center">
+                              <svg className="w-3 h-3 text-status-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                              </svg>
+                            </div>
+                          ) : (
+                            <div className="w-6 h-6 bg-status-success/20 rounded-full flex items-center justify-center">
+                              <svg className="w-3 h-3 text-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                              </svg>
+                            </div>
                           )}
-                          <p className="text-xs text-gray-400">
-                            {new Date(step.timestamp).toLocaleString()}
+                          <span className="text-dark-100 font-medium capitalize">{payment.type}</span>
+                        </div>
+                      </div>
+
+                      {payment.reference && (
+                        <div>
+                          <p className="text-sm text-dark-400 mb-1">Reference</p>
+                          <p className="text-dark-100 font-medium">{payment.reference}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-dark-400 mb-1">Date & Time</p>
+                        <p className="text-dark-100 font-medium">
+                          {new Date(payment.timestamp).toLocaleDateString('en-GB', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                        <p className="text-dark-400 text-sm">
+                          {new Date(payment.timestamp).toLocaleTimeString('en-GB', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                          })}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-dark-400 mb-1">Payment Method</p>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-accent-blue/20 rounded-full flex items-center justify-center">
+                            <svg className="w-3 h-3 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                          </div>
+                          <span className="text-dark-100 font-medium">
+                            {payment.method || 'Blockchain Transfer'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-dark-400 mb-1">Network</p>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-accent-green rounded-full animate-pulse"></div>
+                          <span className="text-dark-100 font-medium">Starling Network</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="border-t border-dark-600/30 pt-6">
+                    <h3 className="text-lg font-semibold text-dark-100 mb-4">Transaction Timeline</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-status-success/20 rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-dark-100 font-medium">Payment Initiated</p>
+                          <p className="text-dark-400 text-sm">
+                            {new Date(payment.timestamp).toLocaleString()}
                           </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Fees Breakdown */}
-                {paymentDetails?.fees && (
-                  <div className="border-t pt-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Fee Breakdown</h4>
-                    <div className="text-sm space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Platform Fee:</span>
-                        <span>${paymentDetails.fees.platformFeeUSD?.toFixed(2) || '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Network Fee:</span>
-                        <span>${paymentDetails.fees.networkFeeUSD?.toFixed(2) || '0.00'}</span>
-                      </div>
-                      <div className="flex justify-between font-medium border-t pt-1">
-                        <span>Total Fees:</span>
-                        <span>${paymentDetails.fees.totalFeeUSD?.toFixed(2) || '0.00'}</span>
-                      </div>
+                      {payment.status !== 'failed' && (
+                        <div className="flex items-start space-x-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            payment.status === 'completed' ? 'bg-status-success/20' : 'bg-status-pending/20'
+                          }`}>
+                            <svg className={`w-4 h-4 ${
+                              payment.status === 'completed' ? 'text-status-success' : 'text-status-pending animate-pulse'
+                            }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-dark-100 font-medium">
+                              {payment.status === 'completed' ? 'Processing Complete' : 'Processing...'}
+                            </p>
+                            <p className="text-dark-400 text-sm">
+                              {payment.status === 'completed' 
+                                ? new Date(Date.now() - 30000).toLocaleString()
+                                : 'Estimated completion in 2-3 minutes'
+                              }
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {payment.status === 'completed' && (
+                        <div className="flex items-start space-x-3">
+                          <div className="w-8 h-8 bg-status-success/20 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg className="w-4 h-4 text-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-dark-100 font-medium">Payment Delivered</p>
+                            <p className="text-dark-400 text-sm">
+                              {new Date(Date.now() - 10000).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
+
+                  {/* Actions */}
+                  <div className="border-t border-dark-600/30 pt-6">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button className="btn-secondary flex-1">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download Receipt
+                      </button>
+                      <button className="btn-secondary flex-1">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                        </svg>
+                        Share Details
+                      </button>
+                      {payment.status === 'pending' && (
+                        <button className="btn-secondary text-status-error border-status-error/30 hover:bg-status-error/10">
+                          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          Cancel Payment
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>
         </div>
       </Dialog>
-    </Transition>
+    </Transition.Root>
   )
 }

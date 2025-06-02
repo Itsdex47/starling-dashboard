@@ -1,11 +1,12 @@
 export interface Payment {
   id: string
+  recipient: string
   amount: number
   currency: string
-  type: 'sent' | 'received'
   status: 'completed' | 'pending' | 'failed'
-  recipient: string
-  date: string
+  type: 'sent' | 'received'
+  timestamp: string
+  reference?: string
   description?: string
 }
 
@@ -18,7 +19,7 @@ const mockPayments: Payment[] = [
     type: 'sent',
     status: 'completed',
     recipient: 'John Smith',
-    date: '2024-06-01T10:30:00Z',
+    timestamp: '2024-06-01T10:30:00Z',
     description: 'Lunch payment'
   },
   {
@@ -28,7 +29,7 @@ const mockPayments: Payment[] = [
     type: 'received',
     status: 'completed',
     recipient: 'Alice Johnson',
-    date: '2024-05-30T14:20:00Z',
+    timestamp: '2024-05-30T14:20:00Z',
     description: 'Freelance work'
   },
   {
@@ -38,7 +39,7 @@ const mockPayments: Payment[] = [
     type: 'sent',
     status: 'pending',
     recipient: 'Bob Wilson',
-    date: '2024-06-01T16:45:00Z',
+    timestamp: '2024-06-01T16:45:00Z',
     description: 'Coffee subscription'
   },
   {
@@ -48,7 +49,7 @@ const mockPayments: Payment[] = [
     type: 'received',
     status: 'completed',
     recipient: 'Emma Davis',
-    date: '2024-05-29T09:15:00Z',
+    timestamp: '2024-05-29T09:15:00Z',
     description: 'Rent payment'
   },
   {
@@ -58,7 +59,7 @@ const mockPayments: Payment[] = [
     type: 'sent',
     status: 'failed',
     recipient: 'Tech Store',
-    date: '2024-05-28T18:30:00Z',
+    timestamp: '2024-05-28T18:30:00Z',
     description: 'Online purchase'
   }
 ]
@@ -74,14 +75,14 @@ export async function getPaymentHistory(): Promise<Payment[]> {
   return mockPayments
 }
 
-export async function sendPayment(payment: Omit<Payment, 'id' | 'date' | 'status'>): Promise<Payment> {
+export async function sendPayment(payment: Omit<Payment, 'id' | 'timestamp' | 'status'>): Promise<Payment> {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1000))
   
   const newPayment: Payment = {
     ...payment,
     id: Math.random().toString(36).substr(2, 9),
-    date: new Date().toISOString(),
+    timestamp: new Date().toISOString(),
     status: 'pending'
   }
   
@@ -115,7 +116,7 @@ export async function getPaymentStatus(paymentId: string): Promise<Payment> {
     type: 'sent',
     status: 'completed',
     recipient: 'Unknown',
-    date: new Date().toISOString(),
+    timestamp: new Date().toISOString(),
     description: 'Payment details not found'
   }
 } 
