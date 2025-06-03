@@ -5,16 +5,34 @@ import Header from '@/components/Header'
 import PaymentStats from '@/components/PaymentStats'
 import PaymentsList from '@/components/PaymentsList'
 import QuickSend from '@/components/QuickSend'
-import { getAllPayments, Payment } from '@/lib/api'
+import { getAllPayments, clearTemporaryPayments } from '@/lib/api'
+
+interface Payment {
+  id: string
+  recipient: string
+  amount: number
+  currency: string
+  status: 'completed' | 'pending' | 'failed'
+  type: 'sent' | 'received'
+  timestamp: string
+  reference?: string
+  method?: string
+}
 
 export default function Dashboard() {
   const [payments, setPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const loadPayments = async () => {
+  const loadPayments = async (forceClear = false) => {
     try {
       setLoading(true)
+      
+      // Force clear temporary payments if requested
+      if (forceClear) {
+        clearTemporaryPayments()
+      }
+      
       const data = await getAllPayments()
       setPayments(data)
       setError('')
@@ -58,6 +76,15 @@ export default function Dashboard() {
   const onPaymentSent = () => {
     // Refresh payments immediately after new payment
     loadPayments()
+    
+    // Also refresh after a delay to catch any API updates
+    setTimeout(() => {
+      loadPayments()
+    }, 3000)
+  }
+
+  const handleRefreshWithClear = () => {
+    loadPayments(true) // Force clear temporary payments
   }
 
   return (
@@ -134,7 +161,7 @@ export default function Dashboard() {
               payments={payments} 
               loading={loading} 
               error={error}
-              onRefresh={loadPayments}
+              onRefresh={handleRefreshWithClear}
             />
           </div>
         </div>
