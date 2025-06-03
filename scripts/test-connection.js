@@ -7,16 +7,17 @@
 
 const https = require('http');
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'http://localhost:3001';
 const DASHBOARD_URL = 'http://localhost:3000';
 
 console.log('🔄 Testing Starling Dashboard → API Connection...\n');
 
-// Test API endpoints
+// Test API endpoints (updated to match your actual API routes)
 const testEndpoints = [
   { path: '/health', description: 'Health Check' },
-  { path: '/payments', description: 'Payments Endpoint' },
-  { path: '/exchange-rates', description: 'Exchange Rates' }
+  { path: '/api/status', description: 'API Status' },
+  { path: '/api/corridors', description: 'Corridors Endpoint' },
+  { path: '/debug/routes', description: 'Routes Debug' }
 ];
 
 async function testEndpoint(endpoint) {
@@ -65,7 +66,7 @@ async function runTests() {
     if (result.success) {
       console.log('✅ PASSED');
       if (result.data) {
-        console.log(`     Response: ${result.data.substring(0, 80)}...`);
+        console.log(`     Response preview: ${result.data.substring(0, 80)}...`);
       }
     } else {
       console.log('❌ FAILED');
@@ -76,25 +77,33 @@ async function runTests() {
   }
   
   console.log('📋 Connection Summary:');
-  console.log(`  API URL: ${API_BASE_URL}`);
+  console.log(`  API Base URL: ${API_BASE_URL}`);
   console.log(`  Dashboard URL: ${DASHBOARD_URL}`);
   console.log(`  Status: ${allPassed ? '✅ All Connected' : '❌ Issues Found'}\n`);
   
   if (allPassed) {
-    console.log('🎉 SUCCESS! Your dashboard is properly connected to your API.');
-    console.log('   You can now start your dashboard with: npm run dev');
+    console.log('🎉 SUCCESS! Your API is running and responding properly.');
+    console.log('   Your dashboard should now be able to connect to your API.');
+    console.log('   Start your dashboard with: npm run dev');
   } else {
     console.log('🚨 ISSUES DETECTED:');
     console.log('   1. Make sure your API is running on http://localhost:3001');
-    console.log('   2. Check if your API has /api routes configured');
-    console.log('   3. Verify CORS settings allow localhost:3000');
-    console.log('   4. Check your .env.local file configuration');
+    console.log('   2. Check API logs for errors');
+    console.log('   3. Verify your .env file is properly configured');
+    console.log('   4. Try restarting your API server');
   }
   
   console.log('\n🔧 Next Steps:');
   console.log('   1. Start your API: cd starling-remittance-api && npm run dev');
   console.log('   2. Start your dashboard: cd starling-dashboard && npm run dev');
   console.log('   3. Visit http://localhost:3000 to see your connected dashboard');
+  console.log('\n📝 Available API Endpoints:');
+  console.log('   • GET /health - Health check');
+  console.log('   • GET /api/status - API status');
+  console.log('   • POST /api/auth/login - User login');
+  console.log('   • POST /api/payments/quote - Get payment quote');
+  console.log('   • POST /api/payments/demo - Demo payment');
+  console.log('   • GET /api/corridors - Supported corridors');
 }
 
 // Run the tests
