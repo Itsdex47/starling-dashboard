@@ -1,38 +1,37 @@
 /**
  * Configuration for Starling Dashboard API Integration
+ * Updated to match actual API structure
  */
 
 export const API_CONFIG = {
-  // Base API URL - defaults to localhost:3001 for development
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  // Base API URL - now points to root without /api suffix
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
   
-  // API Endpoints
+  // API Endpoints (these will have /api prefix added automatically)
   ENDPOINTS: {
-    // Payment-related endpoints
-    PAYMENTS: '/payments',
-    SEND_PAYMENT: '/payments/send',
-    RECEIVE_PAYMENT: '/payments/receive',
-    PAYMENT_STATUS: '/payments/status',
-    PAYMENT_QUOTE: '/payments/quote',
-    PAYMENT_PROCESS: '/payments/process',
-    PAYMENT_DEMO: '/payments/demo',
-    PAYMENT_HISTORY: '/payments/history',
+    // Payment-related endpoints (will become /api/payments/*)
+    PAYMENTS: '/api/payments',
+    SEND_PAYMENT: '/api/payments/send',
+    RECEIVE_PAYMENT: '/api/payments/receive',
+    PAYMENT_STATUS: '/api/payments/status',
+    PAYMENT_QUOTE: '/api/payments/quote',
+    PAYMENT_PROCESS: '/api/payments/process',
+    PAYMENT_DEMO: '/api/payments/demo',
+    PAYMENT_HISTORY: '/api/payments/history',
     
-    // Exchange and rates
-    EXCHANGE_RATES: '/exchange-rates',
-    CORRIDORS: '/corridors',
+    // Auth endpoints (will become /api/auth/*)
+    AUTH_LOGIN: '/api/auth/login',
+    AUTH_REGISTER: '/api/auth/register',
+    AUTH_PROFILE: '/api/auth/profile',
     
-    // User and profile
-    USER_PROFILE: '/user/profile',
-    TRANSACTION_HISTORY: '/transactions',
-    ANALYTICS: '/analytics',
-  },
-  
-  // Special endpoints (these are at root level, not under /api)
-  ROOT_ENDPOINTS: {
-    HEALTH: '/health',
+    // Other API endpoints
     STATUS: '/api/status',
-    DEBUG_ROUTES: '/debug/routes'
+    CORRIDORS: '/api/corridors',
+    EXCHANGE_RATES: '/api/exchange-rates',
+    
+    // Root-level endpoints (no /api prefix)
+    HEALTH: '/health',
+    DEBUG_ROUTES: '/debug/routes',
   },
   
   // Request timeouts
@@ -45,11 +44,11 @@ export const API_CONFIG = {
 
 export const AUTH_CONFIG = {
   // Authentication endpoints
-  LOGIN: '/auth/login',
-  LOGOUT: '/auth/logout',
-  REFRESH: '/auth/refresh',
-  REGISTER: '/auth/register',
-  PROFILE: '/auth/profile',
+  LOGIN: '/api/auth/login',
+  LOGOUT: '/api/auth/logout',
+  REFRESH: '/api/auth/refresh',
+  REGISTER: '/api/auth/register',
+  PROFILE: '/api/auth/profile',
   
   // Token storage keys
   ACCESS_TOKEN_KEY: 'starling_access_token',
@@ -64,19 +63,6 @@ export const ENVIRONMENT = {
 
 // Helper function to build full API URLs
 export const buildApiUrl = (endpoint: string): string => {
-  // Handle root-level endpoints (like /health)
-  if (endpoint.startsWith('/health') || endpoint.startsWith('/debug')) {
-    const baseUrl = API_CONFIG.BASE_URL.replace('/api', '') // Remove /api suffix
-    return `${baseUrl}${endpoint}`
-  }
-  
-  // Handle /api endpoints
-  if (endpoint.startsWith('/api/')) {
-    const baseUrl = API_CONFIG.BASE_URL.replace('/api', '') // Remove /api suffix
-    return `${baseUrl}${endpoint}`
-  }
-  
-  // Handle regular endpoints (add /api prefix)
   const baseUrl = API_CONFIG.BASE_URL.replace(/\/$/, '') // Remove trailing slash
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
   return `${baseUrl}${cleanEndpoint}`
@@ -100,12 +86,17 @@ export const getCommonHeaders = (): HeadersInit => {
   return headers
 }
 
-// Helper to build health check URL
+// Helper to build health check URL (/health - root level)
 export const getHealthCheckUrl = (): string => {
   return buildApiUrl('/health')
 }
 
-// Helper to build status URL
+// Helper to build status URL (/api/status)
 export const getStatusUrl = (): string => {
   return buildApiUrl('/api/status')
+}
+
+// Helper to build corridors URL (/api/corridors)
+export const getCorridorsUrl = (): string => {
+  return buildApiUrl('/api/corridors')
 } 
