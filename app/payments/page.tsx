@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Header from '@/components/Header'
 import SendPaymentForm from '@/components/SendPaymentForm'
 import ReceivePaymentForm from '@/components/ReceivePaymentForm'
@@ -14,6 +14,28 @@ const tabs = [
 
 export default function PaymentsPage() {
   const [activeTab, setActiveTab] = useState('send')
+  const [refreshKey, setRefreshKey] = useState(0)
+  const paymentHistoryRef = useRef<any>()
+
+  const handlePaymentSent = () => {
+    // Force refresh of transaction history
+    setRefreshKey(prev => prev + 1)
+    
+    // Switch to history tab to show the new transaction
+    setTimeout(() => {
+      setActiveTab('history')
+    }, 1000)
+  }
+
+  const handlePaymentReceived = () => {
+    // Force refresh of transaction history
+    setRefreshKey(prev => prev + 1)
+    
+    // Switch to history tab to show the new transaction
+    setTimeout(() => {
+      setActiveTab('history')
+    }, 1000)
+  }
 
   return (
     <div className="bg-dark-900">
@@ -70,18 +92,18 @@ export default function PaymentsPage() {
         <div className="space-y-8">
           {activeTab === 'send' && (
             <div>
-              <SendPaymentForm />
+              <SendPaymentForm onPaymentSent={handlePaymentSent} />
             </div>
           )}
 
           {activeTab === 'receive' && (
             <div>
-              <ReceivePaymentForm />
+              <ReceivePaymentForm onPaymentReceived={handlePaymentReceived} />
             </div>
           )}
 
           {activeTab === 'history' && (
-            <div>
+            <div key={refreshKey}>
               <PaymentHistory />
             </div>
           )}
