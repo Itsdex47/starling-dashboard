@@ -93,8 +93,8 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                       <div className="flex items-center space-x-3">
                         {getStatusIcon(payment.status)}
                         <Dialog.Title className="text-2xl font-bold text-dark-100 text-display-xl">
-                          Payment Details
-                        </Dialog.Title>
+                    Payment Details
+                  </Dialog.Title>
                       </div>
                       <span className={getStatusBadge(payment.status)}>
                         {payment.status}
@@ -105,12 +105,12 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                       <p className="text-sm text-dark-200 font-mono">{payment.id}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={onClose}
+                    <button
+                      onClick={onClose}
                     className="btn-icon hover:bg-dark-700 w-10 h-10 ml-4"
-                  >
-                    <XMarkIcon className="h-5 w-5" />
-                  </button>
+                    >
+                      <XMarkIcon className="h-5 w-5" />
+                    </button>
                 </div>
 
                 {/* Redesigned Content */}
@@ -142,7 +142,7 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                         
                         <div className="space-y-4">
                           <div className="flex justify-between items-start py-3 border-b border-dark-700/30">
-                            <div>
+                    <div>
                               <p className="text-sm text-dark-400 mb-1">
                                 {payment.type === 'sent' ? 'Recipient' : 'Sender'}
                               </p>
@@ -165,10 +165,10 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                                 </div>
                               )}
                             </div>
-                          </div>
+                    </div>
 
                           <div className="flex justify-between items-center py-3 border-b border-dark-700/30">
-                            <div>
+                    <div>
                               <p className="text-sm text-dark-400 mb-1">Payment Method</p>
                               <div className="flex items-center">
                                 <div className="w-5 h-5 bg-accent-blue/20 rounded-full flex items-center justify-center mr-2">
@@ -178,10 +178,10 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                                 </div>
                                 <span className="text-dark-100 font-medium">
                                   {payment.method || 'Blockchain Transfer'}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
                           <div className="flex justify-between items-center py-3 border-b border-dark-700/30">
                             <div>
@@ -201,7 +201,7 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                               </div>
                             </div>
                           )}
-                        </div>
+                      </div>
                       </div>
                     </div>
 
@@ -235,7 +235,7 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                             </p>
                           </div>
 
-                          <div className="space-y-3">
+                  <div className="space-y-3">
                             <div className="flex items-start space-x-3">
                               <div className="w-8 h-8 bg-status-success/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                                 <svg className="w-4 h-4 text-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,8 +260,8 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                                   }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                   </svg>
-                                </div>
-                                <div className="flex-1">
+                        </div>
+                        <div className="flex-1">
                                   <p className="text-dark-100 font-medium">
                                     {payment.status === 'completed' ? 'Processing Complete' : 'Processing...'}
                                   </p>
@@ -270,9 +270,9 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                                       ? new Date(Date.now() - 30000).toLocaleString('en-GB')
                                       : 'Estimated completion in 2-3 minutes'
                                     }
-                                  </p>
-                                </div>
-                              </div>
+                          </p>
+                        </div>
+                      </div>
                             )}
 
                             {payment.status === 'completed' && (
@@ -287,11 +287,11 @@ export default function PaymentDetailModal({ payment, isOpen, onClose }: Payment
                                   <p className="text-dark-400 text-sm">
                                     {new Date(Date.now() - 10000).toLocaleString('en-GB')}
                                   </p>
-                                </div>
-                              </div>
+                  </div>
+                </div>
                             )}
-                          </div>
-                        </div>
+                      </div>
+                      </div>
                       </div>
                     </div>
                   </div>
