@@ -77,7 +77,6 @@ export default function QuickSend({ onPaymentSent }: QuickSendProps) {
         recipient: formData.recipient,
         amount: parseFloat(formData.amount),
         currency: formData.currency,
-        type: 'sent',
         reference: formData.reference
       })
 
