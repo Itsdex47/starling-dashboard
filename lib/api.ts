@@ -263,7 +263,14 @@ export const addTemporaryPayment = (payment: Omit<Payment, 'id' | 'timestamp' | 
   }
   
   localStorage.setItem('temp_payments', JSON.stringify(tempPayments))
+  console.log('➕ Added temporary payment:', newPayment)
   return newPayment
+}
+
+// Add function to manually clear temporary payments
+export const clearTemporaryPayments = () => {
+  localStorage.removeItem('temp_payments')
+  console.log('🧹 Cleared all temporary payments')
 }
 
 // Enhanced: Get payments including temporary ones for instant feedback
@@ -274,6 +281,10 @@ export const getAllPayments = async (): Promise<Payment[]> => {
   const stored = localStorage.getItem('temp_payments')
   const tempPayments = stored ? JSON.parse(stored) : []
   
+  console.log('🔍 Deduplication Debug:')
+  console.log('API Payments:', apiPayments.length, apiPayments)
+  console.log('Temp Payments:', tempPayments.length, tempPayments)
+  
   // Filter out old temporary payments (older than 1 hour)
   const recentTempPayments = tempPayments.filter((payment: Payment) => {
     const paymentTime = new Date(payment.timestamp).getTime()
@@ -281,11 +292,55 @@ export const getAllPayments = async (): Promise<Payment[]> => {
     return paymentTime > oneHourAgo
   })
   
-  // Update localStorage with filtered temporary payments
-  localStorage.setItem('temp_payments', JSON.stringify(recentTempPayments))
+  // Remove temporary payments that have corresponding API payments
+  // Use more flexible matching criteria
+  const filteredTempPayments = recentTempPayments.filter((tempPayment: Payment) => {
+    const matchingApiPayment = apiPayments.find((apiPayment: Payment) => {
+      // Match by amount (exact or very close)
+      const amountMatch = Math.abs(apiPayment.amount - tempPayment.amount) < 0.01
+      
+      // Match by similar recipient (handles email->name transformations)
+      const recipientMatch = 
+        apiPayment.recipient.toLowerCase().includes(tempPayment.recipient.toLowerCase()) ||
+        tempPayment.recipient.toLowerCase().includes(apiPayment.recipient.toLowerCase()) ||
+        apiPayment.recipient === tempPayment.recipient
+      
+      // Match if created within reasonable time window (30 minutes)
+      const timeMatch = Math.abs(
+        new Date(apiPayment.timestamp).getTime() - new Date(tempPayment.timestamp).getTime()
+      ) < 30 * 60 * 1000
+      
+      const isMatch = amountMatch && (recipientMatch || timeMatch)
+      
+      if (isMatch) {
+        console.log(`✅ Found matching payment - removing temp:`, {
+          temp: { recipient: tempPayment.recipient, amount: tempPayment.amount, id: tempPayment.id },
+          api: { recipient: apiPayment.recipient, amount: apiPayment.amount, id: apiPayment.id },
+          amountMatch, recipientMatch, timeMatch
+        })
+      }
+      
+      return isMatch
+    })
+    
+    // Keep temp payment only if NO matching API payment found
+    return !matchingApiPayment
+  })
   
-  // Combine API payments with temporary payments (temporary ones first)
-  return [...recentTempPayments, ...apiPayments]
+  console.log('Filtered Temp Payments:', filteredTempPayments.length, filteredTempPayments)
+  
+  // Update localStorage with filtered temporary payments
+  localStorage.setItem('temp_payments', JSON.stringify(filteredTempPayments))
+  
+  // Combine API payments with remaining temporary payments (temporary ones first)
+  const allPayments = [...filteredTempPayments, ...apiPayments]
+  
+  // Sort by timestamp (newest first)
+  const sortedPayments = allPayments.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+  
+  console.log('Final Combined Payments:', sortedPayments.length, sortedPayments)
+  
+  return sortedPayments
 }
 
 export const getQuote = async (amount: number, fromCurrency = 'USD', toCurrency = 'MXN') => {
