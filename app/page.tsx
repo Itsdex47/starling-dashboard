@@ -5,19 +5,7 @@ import Header from '@/components/Header'
 import PaymentStats from '@/components/PaymentStats'
 import PaymentsList from '@/components/PaymentsList'
 import QuickSend from '@/components/QuickSend'
-import { getPaymentHistory } from '@/lib/api'
-
-interface Payment {
-  id: string
-  recipient: string
-  amount: number
-  currency: string
-  status: 'completed' | 'pending' | 'failed'
-  type: 'sent' | 'received'
-  timestamp: string
-  reference?: string
-  method?: string
-}
+import { getAllPayments, Payment } from '@/lib/api'
 
 export default function Dashboard() {
   const [payments, setPayments] = useState<Payment[]>([])
@@ -27,22 +15,9 @@ export default function Dashboard() {
   const loadPayments = async () => {
     try {
       setLoading(true)
-      const data = await getPaymentHistory()
-      
-      // Transform API data to match Payment interface
-      const transformedPayments: Payment[] = data.payments.map(payment => ({
-        id: payment.paymentId,
-        recipient: payment.recipient.name,
-        amount: payment.amount.input,
-        currency: payment.amount.inputCurrency,
-        status: payment.status as 'completed' | 'pending' | 'failed',
-        type: 'sent' as 'sent' | 'received', // API doesn't provide type, defaulting to sent
-        timestamp: payment.createdAt,
-        reference: payment.reference,
-        method: payment.recipient.bank
-      }))
-      
-      setPayments(transformedPayments)
+      const data = await getAllPayments()
+      setPayments(data)
+      setError('')
     } catch (err) {
       console.error('Failed to load payments:', err)
       setError('Failed to load payment data')
@@ -78,14 +53,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadPayments()
-    
-    // Removed auto-refresh to prevent constant reloading
-    // Users can manually refresh using the refresh button in PaymentsList
   }, [])
 
   const onPaymentSent = () => {
-    // Refresh payments after new payment
-    setTimeout(loadPayments, 1000)
+    // Refresh payments immediately after new payment
+    loadPayments()
   }
 
   return (
