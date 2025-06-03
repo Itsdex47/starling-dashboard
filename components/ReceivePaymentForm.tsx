@@ -11,6 +11,11 @@ import {
 } from '@heroicons/react/24/outline'
 import { Menu, Transition } from '@headlessui/react'
 import QRCode from 'react-qr-code'
+import { addTemporaryPayment } from '@/lib/api'
+
+interface ReceivePaymentFormProps {
+  onPaymentReceived?: () => void
+}
 
 interface PaymentRequest {
   id: string
@@ -22,7 +27,7 @@ interface PaymentRequest {
   createdAt: Date
 }
 
-export default function ReceivePaymentForm() {
+export default function ReceivePaymentForm({ onPaymentReceived }: ReceivePaymentFormProps) {
   const [amount, setAmount] = useState('')
   const [currency, setCurrency] = useState('USD')
   const [description, setDescription] = useState('')
@@ -70,6 +75,16 @@ export default function ReceivePaymentForm() {
 
     setLoading(true)
     try {
+      // Create temporary payment record for instant UI feedback (as pending request)
+      const tempPayment = addTemporaryPayment({
+        recipient: 'Payment Request', // Since this is a receive request
+        amount: parseFloat(amount),
+        currency: currency,
+        reference: description || 'Payment request',
+        type: 'received',
+        method: 'payment_request'
+      })
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500))
       
@@ -100,6 +115,11 @@ export default function ReceivePaymentForm() {
       }
       
       setPaymentRequest(newRequest)
+      
+      // Notify parent component about the payment request
+      if (onPaymentReceived) {
+        onPaymentReceived()
+      }
     } catch (error) {
       setErrors({ submit: 'Failed to generate payment request. Please try again.' })
     } finally {
