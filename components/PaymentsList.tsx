@@ -97,9 +97,14 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
     }
   }
 
-  const filteredPayments = payments.filter(payment => {
-    const matchesSearch = payment.recipient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         payment.id.toLowerCase().includes(searchTerm.toLowerCase())
+  // Safety check: ensure payments is an array
+  const safePayments = Array.isArray(payments) ? payments : []
+
+  const filteredPayments = safePayments.filter(payment => {
+    if (!payment) return false
+    
+    const matchesSearch = (payment.recipient?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                         (payment.id?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || payment.status === statusFilter
     const matchesType = typeFilter === 'all' || payment.type === typeFilter
     
@@ -167,7 +172,7 @@ export default function PaymentsList({ payments, loading, error, onRefresh }: Pa
             <div>
               <h2 className="text-2xl font-bold text-dark-100 text-display-xl">Recent Transactions</h2>
               <p className="text-sm text-dark-400 mt-1">
-                <span className="number-sm font-medium text-accent-green">{filteredPayments.length}</span> of <span className="number-sm">{payments.length}</span> transactions
+                <span className="number-sm font-medium text-accent-green">{filteredPayments.length}</span> of <span className="number-sm">{safePayments.length}</span> transactions
               </p>
             </div>
             <button
