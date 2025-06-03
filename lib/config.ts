@@ -8,14 +8,31 @@ export const API_CONFIG = {
   
   // API Endpoints
   ENDPOINTS: {
+    // Payment-related endpoints
     PAYMENTS: '/payments',
     SEND_PAYMENT: '/payments/send',
     RECEIVE_PAYMENT: '/payments/receive',
     PAYMENT_STATUS: '/payments/status',
+    PAYMENT_QUOTE: '/payments/quote',
+    PAYMENT_PROCESS: '/payments/process',
+    PAYMENT_DEMO: '/payments/demo',
+    PAYMENT_HISTORY: '/payments/history',
+    
+    // Exchange and rates
     EXCHANGE_RATES: '/exchange-rates',
+    CORRIDORS: '/corridors',
+    
+    // User and profile
     USER_PROFILE: '/user/profile',
     TRANSACTION_HISTORY: '/transactions',
     ANALYTICS: '/analytics',
+  },
+  
+  // Special endpoints (these are at root level, not under /api)
+  ROOT_ENDPOINTS: {
+    HEALTH: '/health',
+    STATUS: '/api/status',
+    DEBUG_ROUTES: '/debug/routes'
   },
   
   // Request timeouts
@@ -32,6 +49,7 @@ export const AUTH_CONFIG = {
   LOGOUT: '/auth/logout',
   REFRESH: '/auth/refresh',
   REGISTER: '/auth/register',
+  PROFILE: '/auth/profile',
   
   // Token storage keys
   ACCESS_TOKEN_KEY: 'starling_access_token',
@@ -46,6 +64,19 @@ export const ENVIRONMENT = {
 
 // Helper function to build full API URLs
 export const buildApiUrl = (endpoint: string): string => {
+  // Handle root-level endpoints (like /health)
+  if (endpoint.startsWith('/health') || endpoint.startsWith('/debug')) {
+    const baseUrl = API_CONFIG.BASE_URL.replace('/api', '') // Remove /api suffix
+    return `${baseUrl}${endpoint}`
+  }
+  
+  // Handle /api endpoints
+  if (endpoint.startsWith('/api/')) {
+    const baseUrl = API_CONFIG.BASE_URL.replace('/api', '') // Remove /api suffix
+    return `${baseUrl}${endpoint}`
+  }
+  
+  // Handle regular endpoints (add /api prefix)
   const baseUrl = API_CONFIG.BASE_URL.replace(/\/$/, '') // Remove trailing slash
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
   return `${baseUrl}${cleanEndpoint}`
@@ -67,4 +98,14 @@ export const getCommonHeaders = (): HeadersInit => {
   }
 
   return headers
+}
+
+// Helper to build health check URL
+export const getHealthCheckUrl = (): string => {
+  return buildApiUrl('/health')
+}
+
+// Helper to build status URL
+export const getStatusUrl = (): string => {
+  return buildApiUrl('/api/status')
 } 
