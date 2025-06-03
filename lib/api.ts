@@ -40,6 +40,13 @@ export interface DemoPaymentRequest {
   }
 }
 
+export interface SendPaymentRequest {
+  recipient: string
+  amount: number
+  currency: string
+  reference: string
+}
+
 export interface PaymentStatusResponse {
   success: boolean
   data: {
@@ -113,6 +120,11 @@ export interface PaymentHistoryResponse {
 // API Methods
 export const sendDemoPayment = async (paymentRequest: DemoPaymentRequest) => {
   const response = await api.post('/api/payments/demo', paymentRequest)
+  return response.data
+}
+
+export const sendPayment = async (paymentRequest: SendPaymentRequest) => {
+  const response = await api.post('/api/payments/send', paymentRequest)
   return response.data
 }
 
