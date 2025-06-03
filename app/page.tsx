@@ -5,7 +5,19 @@ import Header from '@/components/Header'
 import PaymentStats from '@/components/PaymentStats'
 import PaymentsList from '@/components/PaymentsList'
 import QuickSend from '@/components/QuickSend'
-import { getPaymentHistory, Payment } from '@/lib/api'
+import { getPaymentHistory } from '@/lib/api'
+
+interface Payment {
+  id: string
+  recipient: string
+  amount: number
+  currency: string
+  status: 'completed' | 'pending' | 'failed'
+  type: 'sent' | 'received'
+  timestamp: string
+  reference?: string
+  method?: string
+}
 
 export default function Dashboard() {
   const [payments, setPayments] = useState<Payment[]>([])
@@ -16,10 +28,49 @@ export default function Dashboard() {
     try {
       setLoading(true)
       const data = await getPaymentHistory()
-      setPayments(data)
+      
+      // Transform API data to match Payment interface
+      const transformedPayments: Payment[] = data.payments.map(payment => ({
+        id: payment.paymentId,
+        recipient: payment.recipient.name,
+        amount: payment.amount.input,
+        currency: payment.amount.inputCurrency,
+        status: payment.status as 'completed' | 'pending' | 'failed',
+        type: 'sent' as 'sent' | 'received', // API doesn't provide type, defaulting to sent
+        timestamp: payment.createdAt,
+        reference: payment.reference,
+        method: payment.recipient.bank
+      }))
+      
+      setPayments(transformedPayments)
     } catch (err) {
       console.error('Failed to load payments:', err)
       setError('Failed to load payment data')
+      
+      // Provide fallback mock data when API fails
+      const mockPayments: Payment[] = [
+        {
+          id: 'mock-1',
+          recipient: 'John Doe',
+          amount: 250.00,
+          currency: 'GBP',
+          status: 'completed',
+          type: 'sent',
+          timestamp: new Date().toISOString(),
+          reference: 'Payment for services'
+        },
+        {
+          id: 'mock-2', 
+          recipient: 'Jane Smith',
+          amount: 100.50,
+          currency: 'GBP',
+          status: 'pending',
+          type: 'sent',
+          timestamp: new Date(Date.now() - 86400000).toISOString(),
+          reference: 'Monthly payment'
+        }
+      ]
+      setPayments(mockPayments)
     } finally {
       setLoading(false)
     }

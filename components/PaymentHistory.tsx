@@ -10,8 +10,21 @@ import {
   EyeIcon
 } from '@heroicons/react/24/outline'
 import { Menu, Transition } from '@headlessui/react'
-import { getPaymentHistory, Payment } from '@/lib/api'
+import { getPaymentHistory } from '@/lib/api'
 import PaymentDetailModal from './PaymentDetailModal'
+
+interface Payment {
+  id: string
+  recipient: string
+  amount: number
+  currency: string
+  status: 'completed' | 'pending' | 'failed'
+  type: 'sent' | 'received'
+  timestamp: string
+  reference?: string
+  method?: string
+  description?: string
+}
 
 export default function PaymentHistory() {
   const [payments, setPayments] = useState<Payment[]>([])
@@ -58,7 +71,22 @@ export default function PaymentHistory() {
     try {
       setLoading(true)
       const data = await getPaymentHistory()
-      setPayments(data)
+      
+      // Transform API data to match Payment interface
+      const transformedPayments: Payment[] = data.payments.map(payment => ({
+        id: payment.paymentId,
+        recipient: payment.recipient.name,
+        amount: payment.amount.input,
+        currency: payment.amount.inputCurrency,
+        status: payment.status as 'completed' | 'pending' | 'failed',
+        type: 'sent' as 'sent' | 'received',
+        timestamp: payment.createdAt,
+        reference: payment.reference,
+        method: payment.recipient.bank,
+        description: payment.purpose
+      }))
+      
+      setPayments(transformedPayments)
     } catch (error) {
       console.error('Failed to load payment history:', error)
     } finally {
