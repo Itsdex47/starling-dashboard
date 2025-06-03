@@ -5,7 +5,7 @@ import Header from '@/components/Header'
 import PaymentStats from '@/components/PaymentStats'
 import PaymentsList from '@/components/PaymentsList'
 import QuickSend from '@/components/QuickSend'
-import { getPaymentHistory, Payment } from '@/lib/api'
+import { getAllPayments, Payment } from '@/lib/api'
 
 export default function Dashboard() {
   const [payments, setPayments] = useState<Payment[]>([])
@@ -15,8 +15,9 @@ export default function Dashboard() {
   const loadPayments = async () => {
     try {
       setLoading(true)
-      const data = await getPaymentHistory()
+      const data = await getAllPayments()
       setPayments(data)
+      setError('')
     } catch (err) {
       console.error('Failed to load payments:', err)
       setError('Failed to load payment data')
@@ -27,14 +28,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadPayments()
-    
-    // Removed auto-refresh to prevent constant reloading
-    // Users can manually refresh using the refresh button in PaymentsList
   }, [])
 
   const onPaymentSent = () => {
-    // Refresh payments after new payment
-    setTimeout(loadPayments, 1000)
+    // Refresh payments immediately after new payment
+    loadPayments()
   }
 
   return (
