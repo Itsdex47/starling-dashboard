@@ -1,4 +1,4 @@
-import { API_CONFIG, buildApiUrl, getCommonHeaders } from './config'
+import { API_CONFIG, buildApiUrl, getCommonHeaders, getHealthCheckUrl } from './config'
 
 /**
  * Custom error class for API errors
@@ -114,14 +114,35 @@ export const apiClient = new ApiClient()
 
 /**
  * Utility function to check if API is reachable
+ * Updated to use the correct health check endpoint
  */
 export const checkApiHealth = async (): Promise<boolean> => {
   try {
-    await apiClient.get('/health')
-    return true
+    // Use the direct health check URL (not through buildApiUrl)
+    const healthUrl = getHealthCheckUrl()
+    const response = await fetch(healthUrl)
+    
+    if (response.ok) {
+      const data = await response.json()
+      return data.status === 'healthy' || data.status === 'degraded'
+    }
+    
+    return false
   } catch (error) {
     console.warn('API health check failed:', error)
     return false
+  }
+}
+
+/**
+ * Check API status (different from health - provides more details)
+ */
+export const checkApiStatus = async (): Promise<any> => {
+  try {
+    return await apiClient.get('/api/status')
+  } catch (error) {
+    console.warn('API status check failed:', error)
+    return null
   }
 }
 
