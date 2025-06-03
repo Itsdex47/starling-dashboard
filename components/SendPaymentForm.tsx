@@ -10,6 +10,11 @@ import {
   ChevronDownIcon
 } from '@heroicons/react/24/outline'
 import { Menu, Transition } from '@headlessui/react'
+import { addTemporaryPayment } from '@/lib/api'
+
+interface SendPaymentFormProps {
+  onPaymentSent?: () => void
+}
 
 interface SendPaymentFormData {
   amount: string
@@ -26,7 +31,7 @@ interface SendPaymentFormData {
   reference: string
 }
 
-export default function SendPaymentForm() {
+export default function SendPaymentForm({ onPaymentSent }: SendPaymentFormProps) {
   const [formData, setFormData] = useState<SendPaymentFormData>({
     amount: '',
     currency: 'USD',
@@ -161,10 +166,25 @@ export default function SendPaymentForm() {
   const handleSubmit = async () => {
     setLoading(true)
     try {
+      // Create temporary payment record for instant UI feedback
+      const tempPayment = addTemporaryPayment({
+        recipient: formData.recipientName,
+        amount: parseFloat(formData.amount),
+        currency: formData.currency,
+        reference: formData.purpose + (formData.reference ? ` - ${formData.reference}` : ''),
+        type: 'sent',
+        method: 'international_transfer'
+      })
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000))
       setSuccess('Payment initiated successfully! Transaction ID: TXN-' + Math.random().toString(36).substr(2, 9).toUpperCase())
       setStep(4)
+      
+      // Notify parent component about the payment
+      if (onPaymentSent) {
+        onPaymentSent()
+      }
     } catch (error) {
       setErrors({ submit: 'Network error. Please try again.' })
     } finally {
@@ -605,238 +625,120 @@ export default function SendPaymentForm() {
                   Review & Confirm Transfer
                 </h3>
                 
-                {/* Exchange Rate & Cost Breakdown */}
+                {/* Simplified Exchange Rate & Cost */}
                 {exchangeRate && (
-                  <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 rounded-2xl p-6 mb-6">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3">
-                          <CurrencyDollarIcon className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h4 className="text-lg font-bold text-blue-900">Live Exchange Rate</h4>
-                          <p className="text-blue-700 text-xs">Updated 2 minutes ago • Rate guaranteed for 30 minutes</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="number-base font-bold text-blue-900">
-                          1 {formData.currency} = {exchangeRate.rate.toFixed(4)} {formData.recipientCountry === 'MX' ? 'MXN' : 'USD'}
-                        </div>
-                        <div className="text-xs text-blue-700">Mid-market rate • No markup</div>
-                      </div>
+                      <h4 className="text-lg font-semibold text-blue-900">Transfer Summary</h4>
+                      <span className="text-sm text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
+                        Rate guaranteed for 30 min
+                      </span>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
-                        <div className="text-xs font-medium text-blue-700 mb-1">You Send</div>
-                        <div className="number-xl font-bold text-blue-900 mb-1">
-                          {selectedCurrency?.symbol}{exchangeRate.fromAmount.toFixed(2)}
-                        </div>
-                        <div className="text-xs text-blue-600">{formData.currency}</div>
-                      </div>
-                      
-                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
-                        <div className="text-xs font-medium text-blue-700 mb-1">Transfer Fee</div>
-                        <div className="number-xl font-bold text-blue-900 mb-1">
-                          {selectedCurrency?.symbol}{exchangeRate.fees.total.toFixed(2)}
-                        </div>
-                        <div className="text-xs text-blue-600">2.5% • Transparent pricing</div>
-                      </div>
-                      
-                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center">
-                        <div className="text-xs font-medium text-blue-700 mb-1">Total Cost</div>
-                        <div className="number-xl font-bold text-red-700 mb-1">
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-sm text-blue-700 mb-1">You pay</div>
+                        <div className="text-xl font-bold text-blue-900">
                           {selectedCurrency?.symbol}{(exchangeRate.fromAmount + exchangeRate.fees.total).toFixed(2)}
                         </div>
-                        <div className="text-xs text-blue-600">Debited from account</div>
+                        <div className="text-xs text-blue-600">inc. fees</div>
                       </div>
                       
-                      <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-xl p-4 text-center border-2 border-green-200">
-                        <div className="text-xs font-medium text-green-700 mb-1">Recipient Gets</div>
-                        <div className="number-xl font-bold text-green-800 mb-1">
+                      <div className="border-l border-r border-blue-200">
+                        <div className="text-sm text-blue-700 mb-1">Exchange rate</div>
+                        <div className="text-xl font-bold text-blue-900">
+                          {exchangeRate.rate.toFixed(2)}
+                        </div>
+                        <div className="text-xs text-blue-600">
+                          1 {formData.currency} = {exchangeRate.rate.toFixed(2)} {formData.recipientCountry === 'MX' ? 'MXN' : 'USD'}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-sm text-blue-700 mb-1">Recipient gets</div>
+                        <div className="text-xl font-bold text-green-700">
                           {formData.recipientCountry === 'MX' ? '$' : '$'}{exchangeRate.toAmount.toFixed(2)}
                         </div>
-                        <div className="text-xs text-green-600">{formData.recipientCountry === 'MX' ? 'MXN' : 'USD'} • Guaranteed</div>
+                        <div className="text-xs text-blue-600">{formData.recipientCountry === 'MX' ? 'MXN' : 'USD'}</div>
                       </div>
                     </div>
                     
-                    <div className="mt-4 grid grid-cols-2 gap-4 text-center">
-                      <div className="bg-white/60 rounded-lg p-3">
-                        <div className="number-base font-bold text-blue-900">2-5 minutes</div>
-                        <div className="text-xs text-blue-700">Typical delivery time</div>
-                      </div>
-                      <div className="bg-white/60 rounded-lg p-3">
-                        <div className="number-base font-bold text-blue-900">50% cheaper</div>
-                        <div className="text-xs text-blue-700">vs traditional banks</div>
-                      </div>
+                    <div className="mt-4 text-center">
+                      <span className="text-sm text-blue-700">
+                        ⚡ Delivery in 2-5 minutes • 💰 50% cheaper than banks
+                      </span>
                     </div>
                   </div>
                 )}
 
-                {/* Recipient & Transaction Details */}
-                <div className="bg-gradient-to-r from-gray-50 to-white border-2 border-gray-200 rounded-2xl p-6 mb-6">
-                  <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <svg className="h-5 w-5 text-gray-700 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    Recipient & Transaction Details
-                  </h4>
+                {/* Simplified Recipient Details */}
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Sending to</h4>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <div className="bg-white rounded-xl p-3 border border-gray-200">
-                        <div className="text-xs font-medium text-gray-600 mb-1">Recipient Name</div>
-                        <div className="text-base font-bold text-gray-900">{formData.recipientName}</div>
-                      </div>
-                      
-                      <div className="bg-white rounded-xl p-3 border border-gray-200">
-                        <div className="text-xs font-medium text-gray-600 mb-1">Destination Country</div>
-                        <div className="text-base font-bold text-gray-900 flex items-center">
-                          <span className="mr-2 text-lg">{selectedCountry?.flag}</span>
-                          {selectedCountry?.name}
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white rounded-xl p-3 border border-gray-200">
-                        <div className="text-xs font-medium text-gray-600 mb-1">Transfer Purpose</div>
-                        <div className="text-base font-bold text-gray-900 flex items-center">
-                          <span className="mr-2 text-base">{selectedPurpose?.icon}</span>
-                          {selectedPurpose?.label}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="bg-white rounded-xl p-3 border border-gray-200">
-                        <div className="text-xs font-medium text-gray-600 mb-1">Bank Account</div>
-                        <div className="text-base font-bold text-gray-900 font-mono">
-                          ****{formData.recipientBankAccount.slice(-4)}
-                        </div>
-                        <div className="text-xs text-green-600 flex items-center mt-1">
-                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          Account verified
-                        </div>
-                      </div>
-                      
-                      <div className="bg-white rounded-xl p-3 border border-gray-200">
-                        <div className="text-xs font-medium text-gray-600 mb-1">Bank Code</div>
-                        <div className="text-base font-bold text-gray-900 font-mono">{formData.recipientBankCode}</div>
-                        <div className="text-xs text-green-600 flex items-center mt-1">
-                          <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          SWIFT verified
-                        </div>
-                      </div>
-                      
-                      {formData.reference && (
-                        <div className="bg-white rounded-xl p-3 border border-gray-200">
-                          <div className="text-xs font-medium text-gray-600 mb-1">Reference Note</div>
-                          <div className="text-base font-bold text-gray-900">{formData.reference}</div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Security & Compliance Information */}
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 mb-6">
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3">
-                      <ShieldCheckIcon className="h-5 w-5 text-white" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-gray-600">Recipient</div>
+                      <div className="font-semibold text-gray-900">{formData.recipientName}</div>
                     </div>
                     <div>
-                      <h4 className="text-lg font-bold text-green-900">Security & Protection</h4>
-                      <p className="text-green-700 text-sm">Your transfer is fully protected and regulated</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-white/80 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
+                      <div className="text-sm text-gray-600">Country</div>
+                      <div className="font-semibold text-gray-900 flex items-center">
+                        <span className="mr-2">{selectedCountry?.flag}</span>
+                        {selectedCountry?.name}
                       </div>
-                      <h5 className="font-semibold text-base text-green-900 mb-2">Bank-Level Security</h5>
-                      <p className="text-xs text-green-700">256-bit SSL encryption protects all transactions</p>
                     </div>
-                    
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-white/80 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
+                    <div>
+                      <div className="text-sm text-gray-600">Purpose</div>
+                      <div className="font-semibold text-gray-900 flex items-center">
+                        <span className="mr-2">{selectedPurpose?.icon}</span>
+                        {selectedPurpose?.label}
                       </div>
-                      <h5 className="font-semibold text-base text-green-900 mb-2">Regulatory Compliance</h5>
-                      <p className="text-xs text-green-700">Licensed & regulated in 156 countries worldwide</p>
                     </div>
-                    
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-white/80 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
+                    <div>
+                      <div className="text-sm text-gray-600">Bank Account</div>
+                      <div className="font-semibold text-gray-900 font-mono">
+                        ****{formData.recipientBankAccount.slice(-4)}
                       </div>
-                      <h5 className="font-semibold text-base text-green-900 mb-2">Money Protection</h5>
-                      <p className="text-xs text-green-700">Funds protected up to $500,000 FDIC insurance</p>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 bg-white/60 rounded-lg p-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-green-700">Transaction ID:</span>
-                      <span className="font-mono font-semibold text-green-900 text-xs">TXN-{Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* What Happens Next */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6">
-                  <h4 className="text-lg font-bold text-blue-900 mb-4 flex items-center">
-                    <svg className="h-5 w-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    What Happens Next
-                  </h4>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-start">
-                      <div className="w-6 h-6 bg-blue-200 text-blue-900 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-1">1</div>
-                      <div>
-                        <h5 className="font-semibold text-base text-blue-900 mb-1">Instant Processing</h5>
-                        <p className="text-blue-700 text-sm">Your transfer begins processing immediately after confirmation</p>
-                      </div>
+                {/* Simplified Security Notice */}
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                      <ShieldCheckIcon className="h-5 w-5 text-green-600" />
                     </div>
-                    
-                    <div className="flex items-start">
-                      <div className="w-6 h-6 bg-blue-200 text-blue-900 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-1">2</div>
-                      <div>
-                        <h5 className="font-semibold text-base text-blue-900 mb-1">Real-time Tracking</h5>
-                        <p className="text-blue-700 text-sm">Track progress via SMS, email, and dashboard notifications</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
-                      <div className="w-6 h-6 bg-blue-200 text-blue-900 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-1">3</div>
-                      <div>
-                        <h5 className="font-semibold text-base text-blue-900 mb-1">Delivery Confirmation</h5>
-                        <p className="text-blue-700 text-sm">Both you and {formData.recipientName} receive confirmation when funds arrive</p>
-                      </div>
+                    <div>
+                      <h4 className="font-semibold text-green-900">Secure & Protected</h4>
+                      <p className="text-sm text-green-700">
+                        Bank-grade encryption • Regulated worldwide • Funds protected up to $500k
+                      </p>
                     </div>
                   </div>
+                </div>
+
+                {/* Simplified Process Steps */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+                    <svg className="h-4 w-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Next Steps
+                  </h4>
+                  <p className="text-sm text-blue-700">
+                    1. Payment processes instantly • 2. Real-time tracking via SMS & email • 3. Both parties get confirmation when complete
+                  </p>
                 </div>
               </div>
 
               {errors.submit && (
-                <div className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-2xl p-6">
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                   <div className="flex items-start">
-                    <ExclamationTriangleIcon className="h-6 w-6 text-red-600 mr-3 flex-shrink-0 mt-1" />
+                    <ExclamationTriangleIcon className="h-5 w-5 text-red-600 mr-3 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-lg font-bold text-red-900 mb-2">Transaction Error</h4>
-                      <p className="text-red-800">{errors.submit}</p>
+                      <h4 className="font-semibold text-red-900">Transaction Error</h4>
+                      <p className="text-sm text-red-800">{errors.submit}</p>
                     </div>
                   </div>
                 </div>
@@ -857,12 +759,12 @@ export default function SendPaymentForm() {
                   {loading ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Processing Transfer...</span>
+                      <span>Processing...</span>
                     </>
                   ) : (
                     <>
                       <ShieldCheckIcon className="h-6 w-6" />
-                      <span>Confirm & Send {selectedCurrency?.symbol}{(exchangeRate?.fromAmount + exchangeRate?.fees.total).toFixed(2)}</span>
+                      <span>Send {selectedCurrency?.symbol}{(exchangeRate?.fromAmount + exchangeRate?.fees.total).toFixed(2)}</span>
                     </>
                   )}
                 </button>
