@@ -72,18 +72,21 @@ export default function PaymentHistory() {
       setLoading(true)
       const data = await getPaymentHistory()
       
+      // Handle both response formats (API object vs fallback array)
+      const paymentsArray = Array.isArray(data) ? data : (data as any)?.payments || []
+      
       // Transform API data to match Payment interface
-      const transformedPayments: Payment[] = data.payments.map(payment => ({
-        id: payment.paymentId,
-        recipient: payment.recipient.name,
-        amount: payment.amount.input,
-        currency: payment.amount.inputCurrency,
+      const transformedPayments: Payment[] = paymentsArray.map((payment: any) => ({
+        id: payment.paymentId || payment.id,
+        recipient: payment.recipient?.name || payment.recipient,
+        amount: payment.amount?.input || payment.amount,
+        currency: payment.amount?.inputCurrency || payment.currency,
         status: payment.status as 'completed' | 'pending' | 'failed',
         type: 'sent' as 'sent' | 'received',
-        timestamp: payment.createdAt,
+        timestamp: payment.createdAt || payment.timestamp,
         reference: payment.reference,
-        method: payment.recipient.bank,
-        description: payment.purpose
+        method: payment.recipient?.bank || payment.method,
+        description: payment.purpose || payment.description
       }))
       
       setPayments(transformedPayments)
