@@ -1,231 +1,167 @@
-import { apiClient, handleApiError, checkApiHealth } from './api-client'
-import { API_CONFIG, ENVIRONMENT } from './config'
+import axios from 'axios'
 
-export interface Payment {
-  id: string
-  recipient: string
+const API_BASE_URL = process.env.STARLING_API_URL || 'http://localhost:3001'
+
+// Demo JWT token - in production, this would come from authentication
+const DEMO_JWT_TOKEN = process.env.DEMO_JWT_TOKEN || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiMzNkNDRiZi1mZTA0LTQxMmQtYWI4ZS05NzcxZDU0YmI2ODIiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDg3MjYyODAsImV4cCI6MTc0OTMzMTA4MH0.gknlRS5-JqnEGsNX4Yw_uuYo8bsQSsKERKgpBuKduVw'
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${DEMO_JWT_TOKEN}`
+  },
+  timeout: 30000, // 30 second timeout
+})
+
+// Request interceptor for debugging
+api.interceptors.request.use((config) => {
+  console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${config.url}`, config.data)
+  return config
+})
+
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => {
+    console.log(`✅ API Response: ${response.config.url}`, response.data)
+    return response
+  },
+  (error) => {
+    console.error(`❌ API Error: ${error.config?.url}`, error.response?.data || error.message)
+    throw new Error(error.response?.data?.error || error.message || 'API request failed')
+  }
+)
+
+export interface DemoPaymentRequest {
   amount: number
-  currency: string
-  status: 'completed' | 'pending' | 'failed'
-  type: 'sent' | 'received'
-  timestamp: string
-  reference?: string
-  description?: string
-}
-
-export interface ExchangeRate {
-  from: string
-  to: string
-  rate: number
-  timestamp: string
-}
-
-export interface SendPaymentRequest {
-  recipient: string
-  amount: number
-  currency: string
-  reference?: string
-  description?: string
-}
-
-// Mock payment data for development/fallback
-const mockPayments: Payment[] = [
-  {
-    id: '1',
-    amount: 250.00,
-    currency: 'GBP',
-    type: 'sent',
-    status: 'completed',
-    recipient: 'John Smith',
-    timestamp: '2024-06-01T10:30:00Z',
-    description: 'Lunch payment'
-  },
-  {
-    id: '2',
-    amount: 1500.00,
-    currency: 'GBP',
-    type: 'received',
-    status: 'completed',
-    recipient: 'Alice Johnson',
-    timestamp: '2024-05-30T14:20:00Z',
-    description: 'Freelance work'
-  },
-  {
-    id: '3',
-    amount: 75.50,
-    currency: 'GBP',
-    type: 'sent',
-    status: 'pending',
-    recipient: 'Bob Wilson',
-    timestamp: '2024-06-01T16:45:00Z',
-    description: 'Coffee subscription'
-  },
-  {
-    id: '4',
-    amount: 320.00,
-    currency: 'GBP',
-    type: 'received',
-    status: 'completed',
-    recipient: 'Emma Davis',
-    timestamp: '2024-05-29T09:15:00Z',
-    description: 'Rent payment'
-  },
-  {
-    id: '5',
-    amount: 45.99,
-    currency: 'GBP',
-    type: 'sent',
-    status: 'failed',
-    recipient: 'Tech Store',
-    timestamp: '2024-05-28T18:30:00Z',
-    description: 'Online purchase'
+  recipientDetails: {
+    firstName: string
+    lastName: string
   }
-]
+}
 
-/**
- * Get payment history from API or fallback to mock data
- */
-export async function getPaymentHistory(): Promise<Payment[]> {
-  try {
-    // Check if API is available
-    const isApiHealthy = await checkApiHealth()
-    
-    if (isApiHealthy) {
-      // Use real API
-      const payments = await apiClient.get<Payment[]>(API_CONFIG.ENDPOINTS.PAYMENTS)
-      return payments
-    } else {
-      console.warn('API not available, using mock data')
-      // Fallback to mock data with simulated delay
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return mockPayments
+export interface PaymentStatusResponse {
+  success: boolean
+  data: {
+    paymentId: string
+    status: string
+    progress: {
+      percentage: number
+      currentStep: string
+      completedSteps: number
+      totalSteps: number
     }
-  } catch (error) {
-    console.error('Failed to fetch payment history:', handleApiError(error))
-    
-    // Fallback to mock data
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return mockPayments
+    amount: {
+      input: number
+      inputCurrency: string
+      output: number
+      outputCurrency: string
+    }
+    recipient: {
+      name: string
+      bank: string
+    }
+    timeline: Array<{
+      step: string
+      status: string
+      timestamp: string
+      details: string
+      transactionHash?: string
+    }>
+    fees: {
+      platformFeeUSD?: number
+      networkFeeUSD?: number
+      totalFeeUSD: number
+    }
+    createdAt: string
+    completedAt?: string
+    estimatedCompletionTime: string
   }
 }
 
-/**
- * Send a payment via API or simulate if API unavailable
- */
-export async function sendPayment(payment: SendPaymentRequest): Promise<Payment> {
-  try {
-    // Check if API is available
-    const isApiHealthy = await checkApiHealth()
-    
-    if (isApiHealthy) {
-      // Use real API
-      const result = await apiClient.post<Payment>(API_CONFIG.ENDPOINTS.SEND_PAYMENT, payment)
-      return result
-    } else {
-      console.warn('API not available, simulating payment')
-      // Simulate payment creation
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const newPayment: Payment = {
-        ...payment,
-        id: Math.random().toString(36).substr(2, 9),
-        timestamp: new Date().toISOString(),
-        status: 'pending',
-        type: 'sent'
+export interface PaymentHistoryResponse {
+  success: boolean
+  data: {
+    payments: Array<{
+      paymentId: string
+      status: string
+      amount: {
+        input: number
+        inputCurrency: string
+        output: number
+        outputCurrency: string
       }
-      
-      return newPayment
+      recipient: {
+        name: string
+        bank: string
+      }
+      createdAt: string
+      completedAt?: string
+      purpose?: string
+      reference?: string
+    }>
+    totalCount: number
+    summary: {
+      totalSent: number
+      completed: number
+      pending: number
+      failed: number
     }
-  } catch (error) {
-    throw new Error(handleApiError(error))
   }
 }
 
-/**
- * Get payment status from API
- */
-export async function getPaymentStatus(paymentId: string): Promise<Payment> {
-  try {
-    // Check if API is available
-    const isApiHealthy = await checkApiHealth()
-    
-    if (isApiHealthy) {
-      // Use real API
-      const payment = await apiClient.get<Payment>(`${API_CONFIG.ENDPOINTS.PAYMENT_STATUS}/${paymentId}`)
-      return payment
-    } else {
-      // Fallback to mock data
-      await new Promise(resolve => setTimeout(resolve, 300))
-      
-      const payment = mockPayments.find(p => p.id === paymentId)
-      
-      if (payment) {
-        return payment
-      }
-      
-      // Return a default payment if not found
-      return {
-        id: paymentId,
-        amount: 0,
-        currency: 'GBP',
-        type: 'sent',
-        status: 'completed',
-        recipient: 'Unknown',
-        timestamp: new Date().toISOString(),
-        description: 'Payment details not found'
-      }
-    }
-  } catch (error) {
-    throw new Error(handleApiError(error))
-  }
+// API Methods
+export const sendDemoPayment = async (paymentRequest: DemoPaymentRequest) => {
+  const response = await api.post('/api/payments/demo', paymentRequest)
+  return response.data
 }
 
-/**
- * Get current exchange rates
- */
-export async function getExchangeRates(from: string = 'GBP', to: string = 'USD'): Promise<ExchangeRate> {
-  try {
-    const isApiHealthy = await checkApiHealth()
-    
-    if (isApiHealthy) {
-      const rate = await apiClient.get<ExchangeRate>(`${API_CONFIG.ENDPOINTS.EXCHANGE_RATES}?from=${from}&to=${to}`)
-      return rate
-    } else {
-      // Mock exchange rate
-      return {
-        from,
-        to,
-        rate: 1.27, // Mock GBP to USD rate
-        timestamp: new Date().toISOString()
-      }
-    }
-  } catch (error) {
-    throw new Error(handleApiError(error))
-  }
+export const getPaymentStatus = async (paymentId: string): Promise<PaymentStatusResponse['data']> => {
+  const response = await api.get(`/api/payments/status/${paymentId}`)
+  return response.data.data
 }
 
-/**
- * Create a payment request (for receiving payments)
- */
-export async function createPaymentRequest(amount: number, currency: string = 'GBP', reference?: string): Promise<{ id: string; qrCode: string }> {
-  try {
-    const isApiHealthy = await checkApiHealth()
-    
-    if (isApiHealthy) {
-      const result = await apiClient.post<{ id: string; qrCode: string }>(API_CONFIG.ENDPOINTS.RECEIVE_PAYMENT, {
-        amount,
-        currency,
-        reference
-      })
-      return result
-    } else {
-      // Mock payment request
-      const id = Math.random().toString(36).substr(2, 9)
-      const qrCode = `starling://pay/${id}/${amount}/${currency}${reference ? `?ref=${reference}` : ''}`
-      
-      return { id, qrCode }
-    }
-  } catch (error) {
-    throw new Error(handleApiError(error))
-  }
-} 
+export const getPaymentHistory = async (): Promise<PaymentHistoryResponse['data']> => {
+  const response = await api.get('/api/payments/history')
+  return response.data.data
+}
+
+export const getQuote = async (amount: number, fromCurrency = 'USD', toCurrency = 'MXN') => {
+  const response = await api.post('/api/payments/quote', {
+    amount,
+    fromCurrency,
+    toCurrency
+  })
+  return response.data
+}
+
+export const getSystemHealth = async () => {
+  const response = await api.get('/health')
+  return response.data
+}
+
+export const getPaymentHealth = async () => {
+  const response = await api.get('/api/payments/health')
+  return response.data
+}
+
+// Utility function to format currency
+export const formatCurrency = (amount: number, currency = 'USD') => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount)
+}
+
+// Utility function to format date
+export const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+export default api
