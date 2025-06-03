@@ -11,7 +11,7 @@ export const API_CONFIG = {
   ENDPOINTS: {
     // Payment-related endpoints (will become /api/payments/*)
     PAYMENTS: '/api/payments',
-    SEND_PAYMENT: '/api/payments/send',
+    SEND_PAYMENT: '/api/payments/demo', // FIXED: Use demo endpoint that actually exists
     RECEIVE_PAYMENT: '/api/payments/receive',
     PAYMENT_STATUS: '/api/payments/status',
     PAYMENT_QUOTE: '/api/payments/quote',
